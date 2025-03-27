@@ -1,13 +1,23 @@
 import { useState } from 'react';
-import UserNavBar from './Components/UserNavBar';
+import AppRoutes from './Navigation/AppRoutes';
 import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0);
-
+  // At the top of your App.jsx or main component
+  console.log('App initializing...');
+  console.log(
+    'Initial token in localStorage:',
+    localStorage.getItem('token') ? 'EXISTS' : 'NOT FOUND'
+  );
+  if (localStorage.getItem('token')) {
+    console.log(
+      'Token first 20 chars:',
+      localStorage.getItem('token').substring(0, 20)
+    );
+  }
   return (
     <>
-      <UserNavBar />
+      <AppRoutes />
     </>
   );
 }

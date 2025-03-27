@@ -1,58 +1,88 @@
 import { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthProvider from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+import AuthProvider from '../Context/AuthProvider';
+import ProtectedRoute from '../Navigation/ProtectRoutes';
+import LoadingSpinner from '../Components/LoadingSpinner';
 
-const LoginForm = lazy(() => import('./Pages/Dashboard/LoginForm'));
-const UserDashboard = lazy(() => import('./Pages/Dashboard/UserDashboard'));
-const ModeratoreDashboard = lazy(() =>
-  import('./Pages/Dashboard/ModeratoreDashboard')
+const LoginPage = lazy(() => import('../Pages/LoginPage'));
+const AuthSuccess = lazy(() => import('../Components/AuthSuccess'));
+const UserDashboard = lazy(() => import('../Pages/Dashboards/UserDashboard'));
+const ModeratorDashboard = lazy(() =>
+  import('../Pages/Dashboards/ModeratorDashboard')
 );
-const AdminDashboard = lazy(() => import('./Pages/Dashboard/AdminDashboard'));
+const AdminDashboard = lazy(() => import('../Pages/Dashboards/AdminDashboard'));
 
 const AppRoutes = () => {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Routes>
-          <Route path="/login" element={<LoginForm />} />
+          {/* Public Routes */}
+          <Route
+            path="/login"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <LoginPage />
+              </Suspense>
+            }
+          />
 
+          <Route
+            path="/auth-success"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <AuthSuccess />
+              </Suspense>
+            }
+          />
+
+          {/* Protected Routes */}
           <Route
             path="/user-dashboard"
             element={
-              <ProtectedRoute roles={['User']}>
-                <Suspense fallback={<div>Loading...</div>}>
+              <ProtectedRoute requiredRole="User">
+                <Suspense fallback={<LoadingSpinner />}>
                   <UserDashboard />
                 </Suspense>
               </ProtectedRoute>
             }
           />
+
           <Route
-            path="/moderatore-dashboard"
+            path="/moderator-dashboard"
             element={
-              <ProtectedRoute roles={['Moderatore']}>
-                <Suspense fallback={<div>Loading...</div>}>
-                  <ModeratoreDashboard />
+              <ProtectedRoute requiredRole="Moderator">
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ModeratorDashboard />
                 </Suspense>
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/admin-dashboard"
             element={
-              <ProtectedRoute roles={['Admin']}>
-                <Suspense fallback={<div>Loading...</div>}>
+              <ProtectedRoute requiredRole="Admin">
+                <Suspense fallback={<LoadingSpinner />}>
                   <AdminDashboard />
                 </Suspense>
               </ProtectedRoute>
             }
           />
 
-          {/* Default Redirect */}
-          <Route path="*" element={<LoginForm />} />
+          {/* Home Route */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+
+          {/* Catch All */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

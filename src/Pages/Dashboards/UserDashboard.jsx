@@ -1,7 +1,12 @@
 import React from 'react';
+import UserNavBar from '../../Components/UserNavBar';
 
 function UserDashboard() {
-  return <div>UserDashboard</div>;
+  return (
+    <div>
+      <UserNavBar />
+    </div>
+  );
 }
 
 export default UserDashboard;
