@@ -85,7 +85,11 @@ const AuthProvider = ({ children }) => {
           window.location.pathname
         );
         if (window.location.pathname === '/auth-success') {
-          window.history.replaceState({}, document.title, '/AuthSuccess');
+          window.history.replaceState(
+            {},
+            document.title,
+            './Components/AuthSuccess'
+          );
         }
         localStorage.setItem('token', token);
         fetchUser(token);
