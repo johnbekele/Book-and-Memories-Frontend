@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContext';
+import { API_URL } from '../Config/EnvConfig';
 
 const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
@@ -36,7 +37,7 @@ const AuthProvider = ({ children }) => {
         console.log('Authorization header:', authHeader);
 
         // Make the actual fetch request
-        const response = await fetch('http://localhost:3000/api/auth/profile', {
+        const response = await fetch(`${API_URL}/api/auth/profile`, {
           headers: {
             Authorization: authHeader,
             'Content-Type': 'application/json',
@@ -117,7 +118,7 @@ const AuthProvider = ({ children }) => {
       setLoading(true);
       console.log('Attempting login with:', loginData);
 
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData),
@@ -180,7 +181,7 @@ const AuthProvider = ({ children }) => {
   const googleLogin = () => {
     setLoading(true);
     console.log('Initiating Google login');
-    window.location.href = 'http://localhost:3000/api/auth/google';
+    window.location.href = `${API_URL}/api/auth/google`;
   };
 
   // Route Dashboard according to roles
