@@ -2,59 +2,61 @@ import React, { useContext, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../Components/LoadingSpinner';
 import AuthContext from '../Context/AuthContext';
+import { useLogger } from '../Hook/useLogger';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, loading, initialized } = useContext(AuthContext);
   const location = useLocation();
+  const logger = useLogger();
 
   useEffect(() => {
-    console.log('ProtectedRoute rendered for path:', location.pathname);
-    console.log('Required role:', requiredRole);
-    console.log('Current user:', user);
-    console.log('User roles:', user?.role);
+    logger.log('ProtectedRoute rendered for path:', location.pathname);
+    logger.log('Required role:', requiredRole);
+    logger.log('Current user:', user);
+    logger.log('User roles:', user?.role);
   }, [location.pathname, requiredRole, user]);
 
   // Wait for auth initialization to complete
   if (loading || !initialized) {
-    console.log('Auth is still loading or initializing...');
+    logger.log('Auth is still loading or initializing...');
     return <LoadingSpinner />;
   }
 
   // Handle unauthenticated state
   if (!user) {
-    console.log('No user found, redirecting to login');
+    logger.log('No user found, redirecting to login');
     return <Navigate to="/login" replace />;
   }
 
   // Debug logging
-  console.log(`Checking if user has role: ${requiredRole}`);
-  console.log(`User has Admin role: ${user.role?.Admin === 4001}`);
-  console.log(`User has Moderator role: ${user.role?.Moderator === 3001}`);
-  console.log(`User has User role: ${user.role?.User === 2001}`);
+  logger.log(`Checking if user has role: ${requiredRole}`);
+  logger.log(`User has Admin role: ${user.role?.Admin === 4001}`);
+  logger.log(`User has Moderator role: ${user.role?.Moderator === 3001}`);
+  logger.log(`User has User role: ${user.role?.User === 2001}`);
 
   // Simplified role check with proper hierarchy - adjusted for your actual role levels
   let hasAccess = false;
 
   if (user.role?.Admin === 4001) {
     // Admin can access everything
-    console.log('User is an Admin - granting access');
+    logger.log('User is an Admin - granting access');
     hasAccess = true;
   } else if (user.role?.Moderator === 3001) {
     // Moderator can access Moderator and User pages
     if (requiredRole === 'Moderator' || requiredRole === 'User') {
-      console.log('User is a Moderator - granting access');
+      logger.log('User is a Moderator - granting access');
       hasAccess = true;
     }
   } else if (user.role?.User === 2001) {
     // User can only access User pages
     if (requiredRole === 'User') {
-      console.log('User is a regular User - granting access');
+      logger.log('User is a regular User - granting access');
       hasAccess = true;
     }
   }
 
   if (!hasAccess) {
-    console.log(`Access denied for ${requiredRole} page`);
+    logger.log(`Access denied for ${requiredRole} page`);
 
     // Access denied component with correct role level checks
     return (
@@ -106,7 +108,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     );
   }
 
-  console.log('Access granted - rendering protected content');
+  logger.log('Access granted - rendering protected content');
   return children;
 };
 

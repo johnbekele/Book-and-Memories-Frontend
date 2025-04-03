@@ -3,14 +3,16 @@ import LoginForm from '../Components/LoginForm';
 import { emailValidator } from '../helper/emailValidator';
 import { passwordValidator } from '../helper/passwordValidator';
 import AuthContext from '../Context/AuthContext';
+import { useLogger } from '../Hook/useLogger.js';
 
 const LoginPage = () => {
   // Get context with error handling
   const context = useContext(AuthContext);
+  const logger = useLogger();
 
   // Safety check
   if (!context) {
-    console.error(
+    logger.error(
       'AuthContext is undefined. Check if AuthProvider is wrapping your app correctly.'
     );
     return <div>Authentication error. Please refresh the page.</div>;

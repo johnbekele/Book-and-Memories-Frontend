@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthContext from '../Context/AuthContext';
-import { useLogger } from '../utils/logger';
+import { useLogger } from '../Hook/useLogger';
 
 const UserNavBar = () => {
   const { user, logout } = useContext(AuthContext);
