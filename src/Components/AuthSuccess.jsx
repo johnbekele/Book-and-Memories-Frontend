@@ -15,9 +15,9 @@ const AuthSuccess = () => {
       // Determine which dashboard to redirect to
       if (user.role) {
         if (user.role.Admin && user.role.Admin >= 4001) {
-          navigate('/admin-dashboard', { replace: true });
+          navigate('/user-dashboard', { replace: true });
         } else if (user.role.Moderator && user.role.Moderator >= 3001) {
-          navigate('/moderator-dashboard', { replace: true });
+          navigate('/user-dashboard', { replace: true });
         } else if (user.role.User && user.role.User >= 2001) {
           navigate('/user-dashboard', { replace: true });
         } else {

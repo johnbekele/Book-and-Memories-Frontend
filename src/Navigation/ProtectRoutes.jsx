@@ -1,10 +1,18 @@
-import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../Components/LoadingSpinner';
 import AuthContext from '../Context/AuthContext';
 
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, loading, initialized } = useContext(AuthContext);
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log('ProtectedRoute rendered for path:', location.pathname);
+    console.log('Required role:', requiredRole);
+    console.log('Current user:', user);
+    console.log('User roles:', user?.role);
+  }, [location.pathname, requiredRole, user]);
 
   // Wait for auth initialization to complete
   if (loading || !initialized) {
@@ -18,39 +26,87 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/login" replace />;
   }
 
-  console.log('User authenticated:', user);
-  console.log('Required role:', requiredRole);
-  console.log('User roles:', user.role);
+  // Debug logging
+  console.log(`Checking if user has role: ${requiredRole}`);
+  console.log(`User has Admin role: ${user.role?.Admin === 4001}`);
+  console.log(`User has Moderator role: ${user.role?.Moderator === 3001}`);
+  console.log(`User has User role: ${user.role?.User === 2001}`);
 
-  // Check if user has the required role
-  const hasRequiredRole = () => {
-    if (!user.role) return false;
+  // Simplified role check with proper hierarchy - adjusted for your actual role levels
+  let hasAccess = false;
 
-    switch (requiredRole) {
-      case 'Admin':
-        return user.role.Admin >= 4001;
-      case 'Moderator':
-        return user.role.Moderator >= 3001;
-      case 'User':
-        return user.role.User >= 2001;
-      default:
-        return false;
+  if (user.role?.Admin === 4001) {
+    // Admin can access everything
+    console.log('User is an Admin - granting access');
+    hasAccess = true;
+  } else if (user.role?.Moderator === 3001) {
+    // Moderator can access Moderator and User pages
+    if (requiredRole === 'Moderator' || requiredRole === 'User') {
+      console.log('User is a Moderator - granting access');
+      hasAccess = true;
     }
-  };
-
-  if (!hasRequiredRole()) {
-    // Redirect based on highest role
-    if (user.role?.Admin >= 4001) {
-      return <Navigate to="/admin-dashboard" replace />;
-    } else if (user.role?.Moderator >= 3001) {
-      return <Navigate to="/moderator-dashboard" replace />;
-    } else if (user.role?.User >= 2001) {
-      return <Navigate to="/user-dashboard" replace />;
-    } else {
-      return <Navigate to="/login" replace />;
+  } else if (user.role?.User === 2001) {
+    // User can only access User pages
+    if (requiredRole === 'User') {
+      console.log('User is a regular User - granting access');
+      hasAccess = true;
     }
   }
 
+  if (!hasAccess) {
+    console.log(`Access denied for ${requiredRole} page`);
+
+    // Access denied component with correct role level checks
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <div className="p-8 bg-white shadow-lg rounded-lg">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Access Denied
+          </h1>
+          <p className="mb-4">You don't have permission to access this page.</p>
+          <p className="mb-4">
+            Your current role:{' '}
+            {user.role?.Admin === 4001
+              ? 'Admin'
+              : user.role?.Moderator === 3001
+              ? 'Moderator'
+              : user.role?.User === 2001
+              ? 'User'
+              : 'Unknown'}
+          </p>
+          <p className="mb-4">Required role: {requiredRole}</p>
+          <div className="flex space-x-4">
+            {user.role?.Admin === 4001 && (
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={() => (window.location.href = '/admin-dashboard')}
+              >
+                Go to Admin Dashboard
+              </button>
+            )}
+            {user.role?.Moderator === 3001 && (
+              <button
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                onClick={() => (window.location.href = '/moderator-dashboard')}
+              >
+                Go to Moderator Dashboard
+              </button>
+            )}
+            {user.role?.User === 2001 && (
+              <button
+                className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                onClick={() => (window.location.href = '/user-dashboard')}
+              >
+                Go to User Dashboard
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('Access granted - rendering protected content');
   return children;
 };
 

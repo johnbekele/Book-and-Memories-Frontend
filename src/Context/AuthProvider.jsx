@@ -4,10 +4,9 @@ import AuthContext from './AuthContext';
 import { API_URL } from '../Config/EnvConfig';
 
 const AuthProvider = ({ children }) => {
-  // Start with loading true to prevent premature routing decisions
-  const [loading, setLoading] = useState(true); // CHANGED: Start as true
+  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  const [initialized, setInitialized] = useState(false); // NEW: Track initialization
+  const [initialized, setInitialized] = useState(false);
   const navigate = useNavigate();
 
   // Define logout function first to avoid circular dependency
@@ -23,16 +22,15 @@ const AuthProvider = ({ children }) => {
       try {
         setLoading(true);
 
-        // Debug token more thoroughly
+        // Debug token
         console.log('Token being used:', token);
         console.log('Token type:', typeof token);
         console.log('Token length:', token ? token.length : 0);
 
-        // If token is undefined or null, don't proceed
         if (!token) {
           console.error('No valid token available');
-          setLoading(false); // CHANGED: Set loading false here
-          return false; // ADDED: Return false to indicate failure
+          setLoading(false);
+          return false;
         }
 
         const authHeader = `Bearer ${token}`;
@@ -59,17 +57,17 @@ const AuthProvider = ({ children }) => {
         // Update user state
         setUser(data);
         setLoading(false);
-        return true; // ADDED: Return true to indicate success
+        return true;
       } catch (error) {
         console.error('Error fetching user:', error);
-        // Only logout for auth errors, not for network errors
+
         if (error.message.includes('401') || error.message.includes('403')) {
           console.log('Authentication error detected, logging out');
           logout();
         } else {
           setLoading(false);
         }
-        return false; // ADDED: Return false to indicate failure
+        return false;
       }
     },
     [logout]
@@ -100,23 +98,21 @@ const AuthProvider = ({ children }) => {
         await fetchUser(token);
       }
 
-      // ADDED: If no token from OAuth, check localStorage
+      //  If no token from OAuth, check localStorage
       if (!token) {
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
           await fetchUser(storedToken);
         } else {
-          setLoading(false); // No token anywhere, we're done loading
+          setLoading(false);
         }
       }
 
-      setInitialized(true); // ADDED: Mark initialization as complete
+      setInitialized(true);
     };
 
     checkForGoogleRedirect();
   }, [fetchUser]);
-
-  // REMOVED: The separate localStorage check effect to avoid race conditions
 
   // Login function
   const login = async (loginData) => {
@@ -136,7 +132,6 @@ const AuthProvider = ({ children }) => {
       console.log('Complete login response:', data);
 
       if (response.ok) {
-        // Check for token in different possible properties
         const token = data.accessToken || data.token || data.jwt;
         console.log('Token extracted from response:', token);
 
@@ -205,11 +200,10 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  // Create the context value object
   const contextValue = {
     user,
     loading,
-    initialized, // ADDED: Share initialization state
+    initialized,
     login,
     logout,
     googleLogin,

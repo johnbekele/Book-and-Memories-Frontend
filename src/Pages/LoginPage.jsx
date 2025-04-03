@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import LoginForm from '../Components/LoginForm';
 import { emailValidator } from '../helper/emailValidator';
 import { passwordValidator } from '../helper/passwordValidator';
-import AuthContext from '../Context/AuthContext'; // Make sure this path is correct
+import AuthContext from '../Context/AuthContext';
 
 const LoginPage = () => {
   // Get context with error handling
