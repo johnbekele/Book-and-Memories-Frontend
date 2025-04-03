@@ -1,12 +1,14 @@
 import React, { useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthContext from '../Context/AuthContext';
+import { useLogger } from '../utils/logger';
 
 const UserNavBar = () => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const logger = useLogger();
 
-  console.log('My user', user);
+  logger.log('My user', user);
 
   const handleLogout = () => {
     logout();
@@ -14,7 +16,7 @@ const UserNavBar = () => {
   };
 
   const handleProfile = () => {
-    console.log('user role ', user.role);
+    logger.log('user role ', user.role);
   };
 
   return (
