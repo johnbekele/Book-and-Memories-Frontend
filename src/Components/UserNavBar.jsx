@@ -47,20 +47,17 @@ const UserNavBar = () => {
             className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
           >
             <li>
-              <a className="justify-between" onClick={handleProfile}>
+              <Link className="justify-between" to="">
                 Profile
                 <span className="badge">New</span>
-              </a>
+              </Link>
             </li>
             {user.role && user.role.Admin && user.role.Admin >= 4001 && (
               <li>
-                <a
-                  className="justify-between"
-                  onClick={navigateToAdminDashboard}
-                >
+                <Link to="/admin-dashboard" className="justify-between">
                   Admin panel
                   <span className="badge">New</span>
-                </a>
+                </Link>
               </li>
             )}
             {user.role &&
@@ -79,10 +76,10 @@ const UserNavBar = () => {
               )}
 
             <li>
-              <a onClick={() => navigate('/settings')}>Settings</a>
+              <Link to="">Settings</Link>
             </li>
             <li>
-              <a onClick={handleLogout}>Logout</a>
+              <Link to="">Logout</Link>
             </li>
           </ul>
         </div>
