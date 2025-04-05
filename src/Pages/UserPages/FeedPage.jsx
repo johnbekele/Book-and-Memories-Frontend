@@ -1,62 +1,112 @@
+import React, { useContext } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useBooks } from '../../Hook/useBooks';
+import { usePost } from '../../Hook/usePost';
+import axios from 'axios';
+import { API_URL } from '../../Config/EnvConfig';
 import BookPostCard from '../../Components/BookPostCard';
+import AuthContext from '../../Context/AuthContext';
+import logger from '../../utils/logger';
 
 function FeedPage() {
-  // Example post data
-  const post = {
-    id: '1',
-    bookTitle: 'The Great Gatsby',
-    bookAuthor: 'F. Scott Fitzgerald',
-    bookCoverUrl:
-      'https://www.pdf.co.tz/wp-content/uploads/2023/02/Rich-Dad-Poor-Dad_page_1-1-of-1-683x1024.jpg',
-    caption: 'Enjoying this classic on a rainy day! #reading #classics',
-    createdAt: '2023-06-15T14:30:00Z',
-    likes: ['user123', 'user456'],
-    comments: [
-      {
-        id: 'c1',
-        user: {
-          username: 'bookworm',
-          profileImage: 'https://example.com/avatar1.jpg',
-        },
-        text: 'One of my favorites!',
-        createdAt: '2023-06-15T15:00:00Z',
-      },
-      {
-        id: 'c2',
-        user: {
-          username: 'literaryfan',
-          profileImage: 'https://example.com/avatar2.jpg',
-        },
-        text: 'The symbolism in this book is amazing.',
-        createdAt: '2023-06-15T16:20:00Z',
-      },
-    ],
-    user: {
-      username: 'readingenthusiast',
-      profileImage: 'https://example.com/avatar3.jpg',
+  const queryClient = useQueryClient();
+  const { user } = useContext(AuthContext);
+  const { books, isLoading: booksLoading } = useBooks();
+  const { posts, isLoading: postsLoading, isError, error } = usePost();
+
+  console.log('Books:', books);
+  console.log('Posts:', posts);
+
+  // Get current user from your auth system
+  const currentUser = { id: user?.id, username: user?.username };
+  logger.log(currentUser.username);
+
+  const isLoading = booksLoading || postsLoading;
+
+  // Like mutation
+  const likeMutation = useMutation({
+    mutationFn: async ({ postId, isLiked }) => {
+      const token = localStorage.getItem('token');
+      const method = isLiked ? 'delete' : 'post';
+
+      return axios({
+        method,
+        url: `${API_URL}/posts/${postId}/like`,
+        headers: { Authorization: `Bearer ${token}` },
+      });
     },
-  };
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
 
-  const currentUser = { id: 'user123', username: 'currentuser' };
+  // Comment mutation
+  const commentMutation = useMutation({
+    mutationFn: async ({ postId, commentText }) => {
+      const token = localStorage.getItem('token');
 
+      return axios.post(
+        `${API_URL}/posts/${postId}/comment`,
+        { text: commentText },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+
+  // Handle actions
   const handleLike = (postId, isLiked) => {
-    console.log(`Post ${postId} ${isLiked ? 'liked' : 'unliked'}`);
-    // Here you would call your API to update likes
+    likeMutation.mutate({ postId, isLiked });
   };
 
   const handleComment = (postId, commentText) => {
-    console.log(`New comment on post ${postId}: ${commentText}`);
-    // Here you would call your API to add the comment
+    commentMutation.mutate({ postId, commentText });
+  };
+
+  // Function to find the corresponding book for a post
+  const findBookForPost = (postBookId) => {
+    return books.find((book) => book._id === postBookId) || null;
   };
 
   return (
     <div className="max-w-screen-md mx-auto p-4">
-      <BookPostCard
-        post={post}
-        currentUser={currentUser}
-        onLike={handleLike}
-        onComment={handleComment}
-      />
+      {isLoading && <p className="text-center">Loading...</p>}
+
+      {isError && (
+        <div
+          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
+          role="alert"
+        >
+          <p>Error loading posts: {error?.message || 'Unknown error'}</p>
+          <p className="text-sm mt-1">
+            Please make sure your API server is running and accessible.
+          </p>
+        </div>
+      )}
+
+      {posts.length === 0 && !isLoading && !isError && (
+        <p className="text-center text-gray-500">
+          No posts found. Create your first post!
+        </p>
+      )}
+
+      {/* Map through posts, not books */}
+      {posts.map((post) => {
+        const book = findBookForPost(post.book);
+
+        return (
+          <BookPostCard
+            key={post._id}
+            post={post}
+            book={book}
+            currentUser={currentUser}
+            onLike={handleLike}
+            onComment={handleComment}
+          />
+        );
+      })}
     </div>
   );
 }

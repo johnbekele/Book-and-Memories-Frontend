@@ -39,7 +39,7 @@ const AuthProvider = ({ children }) => {
         logger.log('Authorization header:', authHeader);
 
         // Make the actual fetch request
-        const response = await fetch(`${API_URL}/api/auth/profile`, {
+        const response = await fetch(`${API_URL}/auth/profile`, {
           headers: {
             Authorization: authHeader,
             'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ const AuthProvider = ({ children }) => {
       setLoading(true);
       logger.log('Attempting login with:', loginData);
 
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(loginData),
@@ -184,7 +184,7 @@ const AuthProvider = ({ children }) => {
   const googleLogin = () => {
     setLoading(true);
     logger.log('Initiating Google login');
-    window.location.href = `${API_URL}/api/auth/google`;
+    window.location.href = `${API_URL}/auth/google`;
   };
 
   // Route Dashboard according to roles

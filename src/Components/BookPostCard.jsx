@@ -6,13 +6,37 @@ import {
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import Avatar from './Avatar';
+import { useTheme } from '../Context/ThemeContext';
+import logger from '../utils/logger';
 
-const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
-  const [liked, setLiked] = useState(post.likes.includes(currentUser.id));
-  const [likesCount, setLikesCount] = useState(post.likes.length);
+const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
+  // Assuming post.likes might not exist yet in your data structure
+  const [liked, setLiked] = useState(
+    post.likes?.includes(currentUser?.id) || false
+  );
+  const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef(null);
+  const { darkMode } = useTheme();
+
+  //posting users
+  const postUser = post.userData;
+  const commentingUser = post.comment;
+
+  logger.log('Post in card:', commentingUser);
+
+  // Generate fallback images
+  const userProfileImage =
+    postUser?.profileImage ||
+    `https://ui-avatars.com/api/?name=${
+      postUser?.username?.charAt(0) || 'U'
+    }&background=random`;
+
+  // Add fallback for book cover
+  const bookCover =
+    book?.cover_image ||
+    'https://dummyimage.com/200x300/e0e0e0/ffffff&text=No+Cover';
 
   const handleLike = () => {
     const newLikedState = !liked;
@@ -20,13 +44,13 @@ const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
     setLikesCount((prevCount) =>
       newLikedState ? prevCount + 1 : prevCount - 1
     );
-    onLike(post.id, newLikedState);
+    onLike(post._id, liked);
   };
 
   const handleCommentSubmit = (e) => {
     e.preventDefault();
     if (commentText.trim()) {
-      onComment(post.id, commentText);
+      onComment(post._id, commentText);
       setCommentText('');
     }
   };
@@ -38,18 +62,29 @@ const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
   }, [showComments]);
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto my-4">
+    <div
+      className={`${
+        darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+      } rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto my-4 transition-colors duration-200`}
+    >
       {/* Post Header */}
       <div className="flex items-center p-3">
         <Avatar
-          src={post.user.profileImage}
-          alt={post.user.username}
+          src={userProfileImage}
+          alt={postUser?.firstname || 'User'}
           className="h-8 w-8 rounded-full"
         />
         <div className="ml-2">
-          <p className="font-semibold text-sm">{post.user.username}</p>
-          <p className="text-gray-500 text-xs">
-            {new Date(post.createdAt).toLocaleDateString()}
+          <p className="font-semibold text-sm">
+            {postUser?.firstname || 'Anonymous'}
+          </p>
+          <p
+            className={`${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            } text-xs`}
+          >
+            {new Date(post.start_date || Date.now()).toLocaleDateString()} -
+            {new Date(post.end_date || Date.now()).toLocaleDateString()}
           </p>
         </div>
       </div>
@@ -60,9 +95,14 @@ const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
         <div className="md:w-1/2 relative">
           <div className="pb-[100%] md:pb-0 md:h-full">
             <img
-              src={post.bookCoverUrl}
-              alt={post.bookTitle}
+              src={bookCover}
+              alt={book?.book_title || 'Book cover'}
               className="absolute inset-0 w-full h-full object-cover"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src =
+                  'https://dummyimage.com/200x300/e0e0e0/ffffff&text=No+Cover';
+              }}
             />
           </div>
         </div>
@@ -80,7 +120,11 @@ const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
                 {liked ? (
                   <HeartSolid className="h-6 w-6 text-red-500" />
                 ) : (
-                  <HeartOutline className="h-6 w-6" />
+                  <HeartOutline
+                    className={`h-6 w-6 ${
+                      darkMode ? 'text-white' : 'text-gray-900'
+                    }`}
+                  />
                 )}
               </button>
               <button
@@ -88,10 +132,18 @@ const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
                 className="mr-3 focus:outline-none"
                 aria-label="Comment"
               >
-                <ChatBubbleOvalLeftIcon className="h-6 w-6" />
+                <ChatBubbleOvalLeftIcon
+                  className={`h-6 w-6 ${
+                    darkMode ? 'text-white' : 'text-gray-900'
+                  }`}
+                />
               </button>
               <button className="ml-auto focus:outline-none" aria-label="Save">
-                <BookmarkIcon className="h-6 w-6" />
+                <BookmarkIcon
+                  className={`h-6 w-6 ${
+                    darkMode ? 'text-white' : 'text-gray-900'
+                  }`}
+                />
               </button>
             </div>
 
@@ -103,35 +155,80 @@ const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
             {/* Book Details */}
             <div className="mt-1">
               <p className="text-sm">
-                <span className="font-semibold">{post.user.username}</span> is
-                reading <span className="font-semibold">{post.bookTitle}</span>{' '}
-                by {post.bookAuthor}
+                <span className="font-semibold">
+                  {postUser?.firstname || 'User'}
+                </span>{' '}
+                {post.end_date ? 'read' : 'is reading'}{' '}
+                <span className="font-semibold">
+                  {book?.book_title || 'a book'}
+                </span>{' '}
+                by {book?.book_author || 'unknown author'}
               </p>
-              {post.caption && <p className="text-sm mt-1">{post.caption}</p>}
+              {post.rating && (
+                <p className="text-sm mt-1">Rating: {post.rating} / 5</p>
+              )}
+              {book?.description && (
+                <p className="text-sm mt-1 line-clamp-3 hover:line-clamp-none">
+                  {book.description}
+                </p>
+              )}
+              {post.memories && (
+                <p className="text-sm mt-2 italic">
+                  "
+                  {typeof post.memories === 'string'
+                    ? post.memories
+                    : post.memories.text}
+                  "
+                </p>
+              )}
             </div>
           </div>
 
           {/* Comments Section - Always visible on desktop */}
-          <div className="flex-grow overflow-hidden border-t p-3">
+          <div
+            className={`flex-grow overflow-hidden ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            } border-t p-3`}
+          >
             <div className="h-full flex flex-col">
               {/* Comments List */}
               <div className="flex-grow overflow-y-auto max-h-32">
-                {post.comments.length > 0 ? (
-                  post.comments.map((comment) => (
-                    <div key={comment.id} className="mb-2">
+                {post.comment && post.comment.length > 0 ? (
+                  post.comment.map((comment) => (
+                    <div
+                      key={comment._id || `comment-${Math.random()}`}
+                      className="mb-2"
+                    >
                       <p className="text-sm">
                         <span className="font-semibold">
-                          {comment.user.username}
+                          {comment.userData?.firstname ||
+                            comment.userData?.firstname ||
+                            'User'}
+                        </span>{' '}
+                        <span className="font-semibold">
+                          {comment.userData?.lastname || ''}
                         </span>{' '}
                         {comment.text}
                       </p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(comment.createdAt).toLocaleDateString()}
+                      <p
+                        className={`text-xs ${
+                          darkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}
+                      >
+                        {new Date(
+                          comment.created_at || Date.now()
+                        ).toLocaleDateString()}
                       </p>
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-gray-500">No comments yet</p>
+                  <p
+                    className={`text-sm ${
+                      darkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                  >
+                    No comments yet
+                  </p>
                 )}
               </div>
 
@@ -141,7 +238,11 @@ const BookPostCard = ({ post, currentUser, onLike, onComment }) => {
                   ref={commentInputRef}
                   type="text"
                   placeholder="Add a comment..."
-                  className="flex-grow text-sm border-none focus:ring-0 focus:outline-none"
+                  className={`flex-grow text-sm border-none focus:ring-0 focus:outline-none ${
+                    darkMode
+                      ? 'bg-gray-800 text-white placeholder-gray-400'
+                      : 'bg-white text-gray-900 placeholder-gray-500'
+                  }`}
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                 />
