@@ -1,1 +1,15 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@plugin "daisyui";
+
+/* theme-override.css */
+[data-theme='light'] .navbar,
+[data-theme='dark'] .navbar {
+  background-color: var(--custom-bg-color) !important;
+  color: var(--custom-text-color) !important;
+}
+
+[data-theme='light'] .dropdown-content,
+[data-theme='dark'] .dropdown-content {
+  background-color: var(--custom-bg-color) !important;
+  color: var(--custom-text-color) !important;
+}

@@ -6,7 +6,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import Avatar from './Avatar';
-import { useTheme } from '../Context/ThemeContext';
+import { useTheme } from '../Context/ThemeContext'; // Using our new hook
 import logger from '../utils/logger';
 
 const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
@@ -18,7 +18,10 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef(null);
-  const { darkMode } = useTheme();
+
+  // Use the new theme context
+  const { theme, colors } = useTheme();
+  const isDark = theme === 'dark';
 
   //posting users
   const postUser = post.userData;
@@ -62,9 +65,11 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
 
   return (
     <div
-      className={`${
-        darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-      } rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto my-4 transition-colors duration-200`}
+      style={{
+        backgroundColor: colors.backgroundColor,
+        color: colors.textColor,
+      }}
+      className={`rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto my-4 transition-colors duration-200`}
     >
       {/* Post Header */}
       <div className="flex items-center p-3">
@@ -78,9 +83,8 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
             {postUser?.firstname || 'Anonymous'}
           </p>
           <p
-            className={`${
-              darkMode ? 'text-gray-400' : 'text-gray-500'
-            } text-xs`}
+            style={{ color: isDark ? '#a0aec0' : '#718096' }}
+            className="text-xs"
           >
             {new Date(post.start_date || Date.now()).toLocaleDateString()} -
             {new Date(post.end_date || Date.now()).toLocaleDateString()}
@@ -120,9 +124,8 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                   <HeartSolid className="h-6 w-6 text-red-500" />
                 ) : (
                   <HeartOutline
-                    className={`h-6 w-6 ${
-                      darkMode ? 'text-white' : 'text-gray-900'
-                    }`}
+                    style={{ color: colors.textColor }}
+                    className="h-6 w-6"
                   />
                 )}
               </button>
@@ -132,16 +135,14 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                 aria-label="Comment"
               >
                 <ChatBubbleOvalLeftIcon
-                  className={`h-6 w-6 ${
-                    darkMode ? 'text-white' : 'text-gray-900'
-                  }`}
+                  style={{ color: colors.textColor }}
+                  className="h-6 w-6"
                 />
               </button>
               <button className="ml-auto focus:outline-none" aria-label="Save">
                 <BookmarkIcon
-                  className={`h-6 w-6 ${
-                    darkMode ? 'text-white' : 'text-gray-900'
-                  }`}
+                  style={{ color: colors.textColor }}
+                  className="h-6 w-6"
                 />
               </button>
             </div>
@@ -185,9 +186,10 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
 
           {/* Comments Section - Always visible on desktop */}
           <div
-            className={`flex-grow overflow-hidden ${
-              darkMode ? 'border-gray-700' : 'border-gray-200'
-            } border-t p-3`}
+            style={{
+              borderColor: isDark ? colors.borderColor : '#e2e8f0',
+            }}
+            className="flex-grow overflow-hidden border-t p-3"
           >
             <div className="h-full flex flex-col">
               {/* Comments List */}
@@ -210,9 +212,8 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                         {comment.text}
                       </p>
                       <p
-                        className={`text-xs ${
-                          darkMode ? 'text-gray-400' : 'text-gray-500'
-                        }`}
+                        style={{ color: isDark ? '#a0aec0' : '#718096' }}
+                        className="text-xs"
                       >
                         {new Date(
                           comment.created_at || Date.now()
@@ -222,9 +223,8 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                   ))
                 ) : (
                   <p
-                    className={`text-sm ${
-                      darkMode ? 'text-gray-400' : 'text-gray-500'
-                    }`}
+                    style={{ color: isDark ? '#a0aec0' : '#718096' }}
+                    className="text-sm"
                   >
                     No comments yet
                   </p>
@@ -237,18 +237,19 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                   ref={commentInputRef}
                   type="text"
                   placeholder="Add a comment..."
-                  className={`flex-grow text-sm border-none focus:ring-0 focus:outline-none ${
-                    darkMode
-                      ? 'bg-gray-800 text-white placeholder-gray-400'
-                      : 'bg-white text-gray-900 placeholder-gray-500'
-                  }`}
+                  style={{
+                    backgroundColor: colors.backgroundColor,
+                    color: colors.textColor,
+                  }}
+                  className="flex-grow text-sm border-none focus:ring-0 focus:outline-none"
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                 />
                 <button
                   type="submit"
                   disabled={!commentText.trim()}
-                  className={`text-blue-500 font-semibold text-sm ${
+                  style={{ color: colors.buttonText }}
+                  className={`font-semibold text-sm ${
                     !commentText.trim() ? 'opacity-50 cursor-default' : ''
                   }`}
                 >

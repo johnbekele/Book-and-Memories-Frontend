@@ -4,6 +4,7 @@ import { emailValidator } from '../helper/emailValidator';
 import { passwordValidator } from '../helper/passwordValidator';
 import AuthContext from '../Context/AuthContext';
 import { useLogger } from '../Hook/useLogger.js';
+import AnimatedLottie from '../Components/AnimatedBook';
 
 const LoginPage = () => {
   // Get context with error handling
@@ -92,13 +93,16 @@ const LoginPage = () => {
   };
 
   return (
-    <LoginForm
-      formData={formData}
-      handleChange={handleChange}
-      handleSubmit={handleSubmit}
-      handleGoogleLogin={handleGoogleLogin}
-      errors={errors}
-    />
+    <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
+      <AnimatedLottie />
+      <LoginForm
+        formData={formData}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        handleGoogleLogin={handleGoogleLogin}
+        errors={errors}
+      />
+    </div>
   );
 };
 
