@@ -3,6 +3,26 @@ import { useNavigate, Link } from 'react-router-dom';
 import AuthContext from '../Context/AuthContext';
 import { useLogger } from '../Hook/useLogger';
 import { useTheme } from '../Context/ThemeContext';
+import {
+  HomeIcon,
+  MagnifyingGlassIcon,
+  BookOpenIcon,
+  HeartIcon,
+  UserCircleIcon,
+  BookmarkIcon,
+  PlusCircleIcon,
+  Bars3Icon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
+
+import {
+  HomeIcon as HomeSolid,
+  MagnifyingGlassIcon as MagnifyingGlassSolid,
+  BookOpenIcon as BookOpenSolid,
+  HeartIcon as HeartSolid,
+  UserCircleIcon as UserCircleSolid,
+  BookmarkIcon as BookmarkSolid,
+} from '@heroicons/react/24/solid';
 
 const UserNavBar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -17,14 +37,30 @@ const UserNavBar = () => {
   };
 
   return (
-    <div className="navbar bg-base-100 shadow-sm">
-      <div className="flex-1">
-        <a href="#" className="btn btn-ghost text-xl">
-          Book-MeMo
-        </a>
+    <div
+      className={`navbar ${
+        darkMode ? 'bg-base-300' : 'bg-base-100'
+      } shadow-md fixed top-0 left-0 right-0 z-50`}
+    >
+      <div
+        className={`sticky top-0 z-10 p-4 ${
+          darkMode ? 'bg-base-300' : 'bg-base-100'
+        }  ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex-1`}
+      >
+        <Link to="/" className="flex items-center">
+          <BookOpenIcon className="h-8 w-8 text-primary" />
+          <span
+            className={`ml-2 text-xl font-bold ${
+              darkMode ? 'text-white' : 'text-gray-900'
+            }`}
+          >
+            BookMeMo
+          </span>
+        </Link>
       </div>
+
       <div className="mr-2.5">
-        <p>
+        <p className={`${darkMode ? 'text-gray-200' : 'text-gray-800'}`}>
           Welcome {user.firstname}! {''}{' '}
         </p>
       </div>
@@ -36,12 +72,14 @@ const UserNavBar = () => {
             className="btn btn-ghost btn-circle avatar"
           >
             <div className="w-10 rounded-full">
-              <img alt="Tailwind CSS Navbar component" src={user.photo} />
+              <img alt="User avatar" src={user.photo} />
             </div>
           </div>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+            className={`menu menu-sm dropdown-content ${
+              darkMode ? 'bg-base-300' : 'bg-base-100'
+            } rounded-box z-[100] mt-3 w-52 p-2 shadow`}
           >
             {/* Theme Toggle Button - Added at the top */}
             <li className="mb-2">
@@ -66,9 +104,6 @@ const UserNavBar = () => {
                 </div>
               </button>
             </li>
-
-            {/* Divider line */}
-            <li className="border-b border-gray-200 dark:border-gray-700 my-1"></li>
 
             <li>
               <Link className="justify-between" to="">

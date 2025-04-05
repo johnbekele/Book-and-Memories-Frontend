@@ -22,13 +22,12 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
 
   //posting users
   const postUser = post.userData;
-  const commentingUser = post.comment;
 
-  logger.log('Post in card:', commentingUser);
+  logger.log('Post in card:', postUser);
 
   // Generate fallback images
   const userProfileImage =
-    postUser?.profileImage ||
+    postUser?.photo ||
     `https://ui-avatars.com/api/?name=${
       postUser?.username?.charAt(0) || 'U'
     }&background=random`;
@@ -72,7 +71,7 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
         <Avatar
           src={userProfileImage}
           alt={postUser?.firstname || 'User'}
-          className="h-8 w-8 rounded-full"
+          className="h-10 w-10 rounded-full"
         />
         <div className="ml-2">
           <p className="font-semibold text-sm">

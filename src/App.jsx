@@ -35,13 +35,13 @@ function App() {
   });
 
   return (
-    <>
+    <div>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <AppRoutes />
         </ThemeProvider>
       </QueryClientProvider>
-    </>
+    </div>
   );
 }
 
