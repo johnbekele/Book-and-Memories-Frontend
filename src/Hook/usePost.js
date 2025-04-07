@@ -45,7 +45,7 @@ const likePost = async ({ postId, isLiked }) => {
 const addComment = async (postId, commentText) => {
   try {
     const response = await axios.post(
-      `http://localhost:3000/api/posts/comment/${postId}`,
+      `${API_URL}/posts/comment/${postId}`,
       { commentText },
       {
         headers: { Authorization: `Bearer ${getToken()}` },
