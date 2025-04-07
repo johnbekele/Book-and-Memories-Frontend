@@ -12,5 +12,17 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+    // Add history API fallback for client-side routing
+    historyApiFallback: true,
+  },
+  // Ensure proper build settings
+  build: {
+    outDir: 'dist',
+    // Generate a _redirects file in the output directory
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+      },
+    },
   },
 });
