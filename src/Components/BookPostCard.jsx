@@ -6,27 +6,30 @@ import {
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import Avatar from './Avatar';
-import { useTheme } from '../Context/ThemeContext'; // Using our new hook
+import { useTheme } from '../Context/ThemeContext';
 import logger from '../utils/logger';
 
 const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
-  // Assuming post.likes might not exist yet in your data structure
-  const [liked, setLiked] = useState(
-    post.likes?.includes(currentUser?.id) || false
-  );
-  const [likesCount, setLikesCount] = useState(post.likes?.length || 0);
+  // Use the post data directly from React Query
+  const isLiked = post.likes?.includes(currentUser?.id) || false;
+  const likesCount = post.likes?.length || 0;
+
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef(null);
 
-  // Use the new theme context
+  //debugug
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [commentError, setCommentError] = useState(null);
+
+  // Use the theme context
   const { theme, colors } = useTheme();
   const isDark = theme === 'dark';
 
-  //posting users
+  // Get post user data
   const postUser = post.userData;
 
-  logger.log('Post in card:', postUser);
+  // logger.log('Post in card:', postUser);
 
   // Generate fallback images
   const userProfileImage =
@@ -40,20 +43,31 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
     book?.cover_image ||
     'https://dummyimage.com/200x300/e0e0e0/ffffff&text=No+Cover';
 
+  // hadle like funtionality
   const handleLike = () => {
-    const newLikedState = !liked;
-    setLiked(newLikedState);
-    setLikesCount((prevCount) =>
-      newLikedState ? prevCount + 1 : prevCount - 1
-    );
-    onLike(post._id, liked);
+    onLike(post._id, isLiked);
   };
 
-  const handleCommentSubmit = (e) => {
+  const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (commentText.trim()) {
-      onComment(post._id, commentText);
-      setCommentText('');
+      try {
+        setIsSubmittingComment(true);
+        setCommentError(null);
+
+        // onComment now returns a boolean indicating success
+        const success = await onComment(post._id, commentText);
+
+        // Only clear the input if the comment was posted successfully
+        if (success) {
+          setCommentText('');
+        }
+      } catch (error) {
+        console.error('Error submitting comment:', error);
+        setCommentError('Failed to post comment. Please try again.');
+      } finally {
+        setIsSubmittingComment(false);
+      }
     }
   };
 
@@ -87,7 +101,9 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
             className="text-xs"
           >
             {new Date(post.start_date || Date.now()).toLocaleDateString()} -
-            {new Date(post.end_date || Date.now()).toLocaleDateString()}
+            {post.end_date
+              ? new Date(post.end_date).toLocaleDateString()
+              : 'Present'}
           </p>
         </div>
       </div>
@@ -118,9 +134,9 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
               <button
                 onClick={handleLike}
                 className="mr-3 focus:outline-none"
-                aria-label={liked ? 'Unlike' : 'Like'}
+                aria-label={isLiked ? 'Unlike' : 'Like'}
               >
-                {liked ? (
+                {isLiked ? (
                   <HeartSolid className="h-6 w-6 text-red-500" />
                 ) : (
                   <HeartOutline
@@ -202,9 +218,7 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                     >
                       <p className="text-sm">
                         <span className="font-semibold">
-                          {comment.userData?.firstname ||
-                            comment.userData?.firstname ||
-                            'User'}
+                          {comment.userData?.firstname || 'User'}
                         </span>{' '}
                         <span className="font-semibold">
                           {comment.userData?.lastname || ''}
@@ -244,18 +258,25 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                   className="flex-grow text-sm border-none focus:ring-0 focus:outline-none"
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
+                  disabled={isSubmittingComment}
                 />
                 <button
                   type="submit"
-                  disabled={!commentText.trim()}
+                  disabled={!commentText.trim() || isSubmittingComment}
                   style={{ color: colors.buttonText }}
                   className={`font-semibold text-sm ${
-                    !commentText.trim() ? 'opacity-50 cursor-default' : ''
+                    !commentText.trim() || isSubmittingComment
+                      ? 'opacity-50 cursor-default'
+                      : ''
                   }`}
                 >
-                  Post
+                  {isSubmittingComment ? 'Posting...' : 'Post'}
                 </button>
               </form>
+
+              {commentError && (
+                <p className="text-red-500 text-xs mt-1">{commentError}</p>
+              )}
             </div>
           </div>
         </div>

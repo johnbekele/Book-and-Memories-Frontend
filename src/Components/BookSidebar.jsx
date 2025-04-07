@@ -35,7 +35,7 @@ const BookSidebar = () => {
   const navItems = [
     {
       name: 'Home',
-      path: '/',
+      path: '/user-dashboard',
       icon: HomeIcon,
       activeIcon: HomeSolid,
     },

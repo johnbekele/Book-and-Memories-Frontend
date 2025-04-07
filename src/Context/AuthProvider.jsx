@@ -184,9 +184,9 @@ const AuthProvider = ({ children }) => {
     if (!role) return '/';
 
     if (role.Admin && role.Admin >= 4001) {
-      return '/admin-dashboard';
+      return '/user-dashboard';
     } else if (role.Moderator && role.Moderator >= 3001) {
-      return '/moderator-dashboard';
+      return '/user-dashboard';
     } else if (role.User && role.User >= 2001) {
       return '/user-dashboard';
     } else {

@@ -1,68 +1,65 @@
-import React, { useContext } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useContext, useState } from 'react';
 import { useBooks } from '../../Hook/useBooks';
 import { usePost } from '../../Hook/usePost';
-import axios from 'axios';
-import { API_URL } from '../../Config/EnvConfig';
 import BookPostCard from '../../Components/BookPostCard';
+import ModerationWarning from '../../Components/ModerationWarning';
 import AuthContext from '../../Context/AuthContext';
-import logger from '../../utils/logger';
 
 function FeedPage() {
-  const queryClient = useQueryClient();
   const { user } = useContext(AuthContext);
   const { books, isLoading: booksLoading } = useBooks();
-  const { posts, isLoading: postsLoading, isError, error } = usePost();
+  const {
+    posts,
+    isLoading: postsLoading,
+    isError,
+    error,
+    likePost,
+    addComment,
+  } = usePost();
 
-  console.log('Books:', books);
-  console.log('Posts:', posts);
+  // Add state for moderation warnings
+  const [moderationWarning, setModerationWarning] = useState({
+    isVisible: false,
+    reason: '',
+    comment: '',
+  });
 
   // Get current user from your auth system
   const currentUser = { id: user?.id, username: user?.username };
-  logger.log(currentUser.username);
 
   const isLoading = booksLoading || postsLoading;
 
-  // Like mutation
-  const likeMutation = useMutation({
-    mutationFn: async ({ postId, isLiked }) => {
-      const token = localStorage.getItem('token');
-      const method = isLiked ? 'delete' : 'post';
-
-      return axios({
-        method,
-        url: `${API_URL}/posts/${postId}/like`,
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-  });
-
-  // Comment mutation
-  const commentMutation = useMutation({
-    mutationFn: async ({ postId, commentText }) => {
-      const token = localStorage.getItem('token');
-
-      return axios.post(
-        `${API_URL}/posts/${postId}/comment`,
-        { text: commentText },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['posts'] });
-    },
-  });
-
   // Handle actions
   const handleLike = (postId, isLiked) => {
-    likeMutation.mutate({ postId, isLiked });
+    likePost({ postId, isLiked });
   };
 
-  const handleComment = (postId, commentText) => {
-    commentMutation.mutate({ postId, commentText });
+  const handleComment = async (postId, commentText) => {
+    try {
+      const result = await addComment(postId, commentText);
+
+      // Check if result exists before accessing its properties
+      if (!result) {
+        console.error('No result returned from addComment function');
+        return false;
+      }
+
+      // Now check for flagged content
+      if (result.flagged) {
+        setModerationWarning({
+          isVisible: true,
+          reason: result.reason || 'Content flagged',
+          comment: commentText,
+        });
+        return false;
+      }
+
+      console.log('Comment sent successfully');
+      return true;
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      return false;
+    }
   };
 
   // Function to find the corresponding book for a post
@@ -92,21 +89,34 @@ function FeedPage() {
         </p>
       )}
 
-      {/* Map through posts, not books */}
+      {/* Map through posts with proper keys */}
       {posts.map((post) => {
         const book = findBookForPost(post.book);
 
         return (
-          <BookPostCard
-            key={post._id}
-            post={post}
-            book={book}
-            currentUser={currentUser}
-            onLike={handleLike}
-            onComment={handleComment}
-          />
+          <div key={post._id} className="mb-4">
+            <BookPostCard
+              post={post}
+              book={book}
+              currentUser={currentUser}
+              onLike={handleLike}
+              onComment={handleComment}
+            />
+          </div>
         );
       })}
+
+      {/* Moderation warning outside the map */}
+      <ModerationWarning
+        warning={moderationWarning}
+        onClose={() =>
+          setModerationWarning({
+            isVisible: false,
+            reason: '',
+            comment: '',
+          })
+        }
+      />
     </div>
   );
 }

@@ -174,10 +174,14 @@ const UserNavBar = () => {
                           : 'rgba(0,0,0,0.05)',
                       }}
                     >
-                      <Link className="menu-item" to="" onClick={closeDropdown}>
+                      <Link
+                        className="menu-item"
+                        to="/moderator-dashboard"
+                        onClick={closeDropdown}
+                      >
                         <div className="menu-item-content">
                           <ShieldCheckIcon className="menu-icon" />
-                          <span>Admin</span>
+                          <span>Admin Dashboard</span>
                         </div>
                       </Link>
                     </motion.div>
@@ -191,10 +195,14 @@ const UserNavBar = () => {
                           : 'rgba(0,0,0,0.05)',
                       }}
                     >
-                      <Link className="menu-item" to="" onClick={closeDropdown}>
+                      <Link
+                        className="menu-item"
+                        to="/moderator-dashboard"
+                        onClick={closeDropdown}
+                      >
                         <div className="menu-item-content">
                           <ShieldCheckIcon className="menu-icon" />
-                          <span>Moderator</span>
+                          <span>Moderator Dashboard</span>
                         </div>
                       </Link>
                     </motion.div>

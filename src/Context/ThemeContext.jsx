@@ -117,6 +117,7 @@ export const ThemeProvider = ({ children }) => {
     }
   };
 
+  // My custom styles for Dark and light mode
   const themes = {
     light: {
       backgroundColor: '#ffffff',

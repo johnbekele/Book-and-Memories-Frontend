@@ -13,6 +13,13 @@ const fetchBooks = async () => {
   return response.data;
 };
 
+const addBook = async (book) => {
+  const response = await axios.post(`${API_URL}/books/add`, book, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return response.data;
+};
+
 // Custom hook for books
 export function useBooks() {
   const queryClient = useQueryClient();
@@ -23,10 +30,23 @@ export function useBooks() {
     queryFn: fetchBooks,
   });
 
+  // Mutation for adding a new book
+  const adBookMutation = useMutation({
+    mutationFn: addBook,
+    onSuccess: (newBook) => {
+      // Invalidate and refetch
+      queryClient.invalidateQueries(['books']);
+    },
+  });
+
   return {
     books: booksQuery.data || [],
     isLoading: booksQuery.isLoading,
     isError: booksQuery.isError,
     error: booksQuery.error,
+    addBook: adBookMutation.mutate,
+    addBookLoading: adBookMutation.isLoading,
+    addBookError: adBookMutation.error,
+    addBookSuccess: adBookMutation.isSuccess,
   };
 }
