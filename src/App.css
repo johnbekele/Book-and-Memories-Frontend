@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@plugin "daisyui";
+/* @plugin "daisyui"; */
 
 /* theme-override.css */
 [data-theme='light'] .navbar,
@@ -12,4 +12,22 @@
 [data-theme='dark'] .dropdown-content {
   background-color: var(--custom-bg-color) !important;
   color: var(--custom-text-color) !important;
+}
+
+@keyframes splash {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-splash {
+  animation: splash 1.2s ease-out forwards;
 }

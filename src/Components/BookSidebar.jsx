@@ -82,7 +82,7 @@ const BookSidebar = () => {
   return (
     <>
       {/* Mobile Menu Button */}
-      <div className="fixed bottom-4 right-4 z-50 md:hidden">
+      {/* <div className="fixed bottom-4 right-4 z-50 md:hidden">
         <button
           onClick={toggleMobileMenu}
           style={{
@@ -97,7 +97,7 @@ const BookSidebar = () => {
             <Bars3Icon className="h-6 w-6" />
           )}
         </button>
-      </div>
+      </div> */}
 
       {/* Desktop Sidebar */}
       <div
@@ -144,8 +144,8 @@ const BookSidebar = () => {
 
         {/* Theme Toggle Button */}
         <div
-          style={{ borderColor: colors.borderColor }}
-          className="px-4 py-2 border-t"
+          // style={{ borderColor: colors.borderColor }}
+          className="px-4 py-2 "
         >
           <button
             onClick={toggleTheme}
@@ -161,10 +161,7 @@ const BookSidebar = () => {
         </div>
 
         {/* Create New Post Button */}
-        <div
-          style={{ borderColor: colors.borderColor }}
-          className="p-4 border-t"
-        >
+        <div style={{ borderColor: colors.borderColor }} className="p-4 ">
           <Link
             to="/create-post"
             style={{
@@ -179,10 +176,7 @@ const BookSidebar = () => {
         </div>
 
         {/* User Profile Section */}
-        <div
-          style={{ borderColor: colors.borderColor }}
-          className="p-4 border-t"
-        >
+        <div style={{ borderColor: colors.borderColor }} className="p-4 ">
           <Link
             to="/profile"
             className="flex items-center space-x-3 p-2 rounded-lg transition-colors duration-200"

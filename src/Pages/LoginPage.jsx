@@ -94,14 +94,18 @@ const LoginPage = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 min-h-screen">
-      <AnimatedLottie />
-      <LoginForm
-        formData={formData}
-        handleChange={handleChange}
-        handleSubmit={handleSubmit}
-        handleGoogleLogin={handleGoogleLogin}
-        errors={errors}
-      />
+      <div className="flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-900">
+        <AnimatedLottie />
+      </div>
+      <div className="flex items-center justify-center p-4 md:p-8">
+        <LoginForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          handleGoogleLogin={handleGoogleLogin}
+          errors={errors}
+        />
+      </div>
     </div>
   );
 };
