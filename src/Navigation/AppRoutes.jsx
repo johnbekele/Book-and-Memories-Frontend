@@ -16,7 +16,7 @@ const ModeratorDashboard = lazy(() =>
   import('../Pages/Dashboards/ModeratorDashboard')
 );
 const AdminDashboard = lazy(() => import('../Pages/Dashboards/AdminDashboard'));
-
+const AddBookPage = lazy(() => import('../Pages/UserPages/AddBookPage'));
 const AppRoutes = () => {
   return (
     <Router>
@@ -31,7 +31,6 @@ const AppRoutes = () => {
               </Suspense>
             }
           />
-
           <Route
             path="/auth-success"
             element={
@@ -40,7 +39,6 @@ const AppRoutes = () => {
               </Suspense>
             }
           />
-
           {/* Protected Routes */}
           <Route
             path="/user-dashboard"
@@ -48,6 +46,16 @@ const AppRoutes = () => {
               <ProtectedRoute requiredRole="User">
                 <Suspense fallback={<LoadingSpinner />}>
                   <UserDashboard />
+                </Suspense>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/books/add"
+            element={
+              <ProtectedRoute requiredRole="User">
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AddBookPage />
                 </Suspense>
               </ProtectedRoute>
             }
@@ -63,7 +71,6 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/admin-dashboard"
             element={
@@ -74,10 +81,8 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
           />
-
           {/* Home Route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
-
           {/* Catch All */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

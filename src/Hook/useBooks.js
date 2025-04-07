@@ -31,7 +31,7 @@ export function useBooks() {
   });
 
   // Mutation for adding a new book
-  const adBookMutation = useMutation({
+  const addBookMutation = useMutation({
     mutationFn: addBook,
     onSuccess: (newBook) => {
       // Invalidate and refetch
@@ -44,9 +44,9 @@ export function useBooks() {
     isLoading: booksQuery.isLoading,
     isError: booksQuery.isError,
     error: booksQuery.error,
-    addBook: adBookMutation.mutate,
-    addBookLoading: adBookMutation.isLoading,
-    addBookError: adBookMutation.error,
-    addBookSuccess: adBookMutation.isSuccess,
+    addBook: addBookMutation.mutate,
+    addBookLoading: addBookMutation.isLoading,
+    addBookError: addBookMutation.error,
+    addBookSuccess: addBookMutation.isSuccess,
   };
 }
