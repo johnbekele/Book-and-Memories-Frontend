@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://52.201.236.78:3000',
+        target: 'https://bookapis.zapto.org',
         changeOrigin: true,
       },
     },

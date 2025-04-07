@@ -83,25 +83,17 @@ const AuthProvider = ({ children }) => {
 
       if (token) {
         logger.log('OAuth token received from URL');
-        // Clear URL parameters
+        // Store the token
+        localStorage.setItem('token', token);
+        await fetchUser(token);
+
         window.history.replaceState(
           {},
           document.title,
           window.location.pathname
         );
-        if (window.location.pathname === '/auth-success') {
-          window.history.replaceState(
-            {},
-            document.title,
-            './Components/AuthSuccess'
-          );
-        }
-        localStorage.setItem('token', token);
-        await fetchUser(token);
-      }
-
-      //  If no token from OAuth, check localStorage
-      if (!token) {
+      } else {
+        // If no token from OAuth, check localStorage
         const storedToken = localStorage.getItem('token');
         if (storedToken) {
           await fetchUser(storedToken);

@@ -5,7 +5,7 @@ import BookAnime from '../assets/Animation/BookAnime.json';
 const AnimatedBook = () => {
   const options = {
     animationData: BookAnime,
-    loop: true,
+    loop: false,
   };
   const { View } = useLottie(options);
   return <div className="w-xl">{View}</div>;

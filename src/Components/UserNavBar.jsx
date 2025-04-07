@@ -7,6 +7,7 @@ import { BookOpenIcon } from '@heroicons/react/24/outline';
 
 const UserNavBar = () => {
   const { user, logout } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const logger = useLogger();
 
