@@ -53,7 +53,7 @@ const BookSidebar = () => {
     },
     {
       name: 'Reading Lists',
-      path: '/reading-lists',
+      path: '/my-lists',
       icon: BookmarkIcon,
       activeIcon: BookmarkSolid,
     },
