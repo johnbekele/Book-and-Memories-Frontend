@@ -11,11 +11,13 @@ import {
   ShieldCheckIcon,
   MoonIcon,
   SunIcon,
+  UserIcon,
+  WrenchIcon,
 } from '@heroicons/react/24/outline';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const UserNavBar = () => {
+const UserNavBar = ({ fromwhere }) => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const logger = useLogger();
@@ -165,48 +167,73 @@ const UserNavBar = () => {
                       <span className="badge">New</span>
                     </Link>
                   </motion.div>
-
-                  {user.role.Admin && user.role.Admin >= 4001 && (
-                    <motion.div
-                      whileHover={{
-                        backgroundColor: isDark
-                          ? 'rgba(255,255,255,0.05)'
-                          : 'rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <Link
-                        className="menu-item"
-                        to="/moderator-dashboard"
-                        onClick={closeDropdown}
+                  {user.role.User &&
+                    user.role.User >= 2001 &&
+                    fromwhere !== 'user' && (
+                      <motion.div
+                        whileHover={{
+                          backgroundColor: isDark
+                            ? 'rgba(255,255,255,0.05)'
+                            : 'rgba(0,0,0,0.05)',
+                        }}
                       >
-                        <div className="menu-item-content">
-                          <ShieldCheckIcon className="menu-icon" />
-                          <span>Admin Dashboard</span>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  )}
-
-                  {user.role.Moderator && user.role.Moderator >= 3001 && (
-                    <motion.div
-                      whileHover={{
-                        backgroundColor: isDark
-                          ? 'rgba(255,255,255,0.05)'
-                          : 'rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <Link
-                        className="menu-item"
-                        to="/moderator-dashboard"
-                        onClick={closeDropdown}
+                        <Link
+                          className="menu-item"
+                          to="/user-dashboard"
+                          onClick={closeDropdown}
+                        >
+                          <div className="menu-item-content">
+                            <UserIcon className="menu-icon" />
+                            <span>User Dashboard</span>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    )}
+                  {user.role.Admin &&
+                    user.role.Admin >= 4001 &&
+                    fromwhere !== 'admin' && (
+                      <motion.div
+                        whileHover={{
+                          backgroundColor: isDark
+                            ? 'rgba(255,255,255,0.05)'
+                            : 'rgba(0,0,0,0.05)',
+                        }}
                       >
-                        <div className="menu-item-content">
-                          <ShieldCheckIcon className="menu-icon" />
-                          <span>Moderator Dashboard</span>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  )}
+                        <Link
+                          className="menu-item"
+                          to="/admin-dashboard"
+                          onClick={closeDropdown}
+                        >
+                          <div className="menu-item-content">
+                            <ShieldCheckIcon className="menu-icon" />
+                            <span>Admin Dashboard</span>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    )}
+
+                  {user.role.Moderator &&
+                    user.role.Moderator >= 3001 &&
+                    fromwhere !== 'moderator' && (
+                      <motion.div
+                        whileHover={{
+                          backgroundColor: isDark
+                            ? 'rgba(255,255,255,0.05)'
+                            : 'rgba(0,0,0,0.05)',
+                        }}
+                      >
+                        <Link
+                          className="menu-item"
+                          to="/moderator-dashboard"
+                          onClick={closeDropdown}
+                        >
+                          <div className="menu-item-content">
+                            <WrenchIcon className="menu-icon" />
+                            <span>Moderator Dashboard</span>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    )}
 
                   <div className="menu-divider"></div>
 

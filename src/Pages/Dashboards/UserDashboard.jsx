@@ -18,7 +18,7 @@ function UserDashboard() {
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-base-300' : 'bg-base-100'}`}>
-      <UserNavBar />
+      <UserNavBar fromwhere="user" />
       {/* Add padding-top to account for fixed navbar */}
       <div className="pt-16">
         {' '}

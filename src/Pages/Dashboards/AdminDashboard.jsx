@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 
+const UserNavbar = lazy(() => import('../../Components/UserNavBar'));
 function AdminDashboard() {
-  return <div>AdminDashboard</div>;
+  return (
+    <div>
+      <UserNavbar fromwhere="admin" />
+    </div>
+  );
 }
 
 export default AdminDashboard;
