@@ -12,18 +12,12 @@ function UserDashboard() {
   const [addBookPage, setAddBookPage] = useState(false);
 
   const handleaddBookPage = () => {
+    console.log('Add Book Page initialized');
     setAddBookPage(!addBookPage);
   };
 
   return (
-    <div
-      className={`min-h-screen ${darkMode ? 'bg-base-300' : 'bg-base-100'}`}
-      onClick={() => {
-        if (addBookPage) {
-          setAddBookPage(false);
-        }
-      }}
-    >
+    <div className={`min-h-screen ${darkMode ? 'bg-base-300' : 'bg-base-100'}`}>
       <UserNavBar />
       {/* Add padding-top to account for fixed navbar */}
       <div className="pt-16">
@@ -39,7 +33,7 @@ function UserDashboard() {
             {' '}
             {addBookPage && (
               <Suspense fallback={<div>Loading...</div>}>
-                <AddBookPage />
+                <AddBookPage openaddpage={handleaddBookPage} />
               </Suspense>
             )}
             <FeedPage />

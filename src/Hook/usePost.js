@@ -51,6 +51,7 @@ const addComment = async (postId, commentText) => {
         headers: { Authorization: `Bearer ${getToken()}` },
       }
     );
+    console.log('Comment response:', response.data.moderation[0]);
 
     // Check if response contains flagged content
     if (response.data.moderation && response.data.moderation[0] === 'Flagged') {
