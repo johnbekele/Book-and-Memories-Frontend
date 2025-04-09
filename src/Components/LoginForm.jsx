@@ -234,7 +234,7 @@ const StyledWrapper = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 500px; /* Increased from 450px to 500px */
+    max-width: 450px;
     padding: 2.5rem;
     border-radius: 16px;
     background-color: ${(props) => (props.isDark ? '#1f1f1f' : '#ffffff')};

@@ -7,61 +7,49 @@ function FlaggedUserPage() {
   const { flagged, isLoading, isError, error } = useFlagged();
   const isMobile = useMediaQuery('(max-width:768px)'); // Detect mobile screens
 
-  // Define columns for flagged users - responsive column widths
+  console.log('Flagged users:', flagged);
+
+  // Define columns for flagged comments
   const columns = [
-    { field: 'id', headerName: 'ID', width: 70, flex: isMobile ? 0 : 0.5 },
+    { field: 'id', headerName: 'ID', width: 100 },
+    { field: 'username', headerName: 'Username', width: 150 },
     {
-      field: 'username',
-      headerName: 'Username',
-      width: 130,
-      flex: 1,
-      minWidth: 100,
-    },
-    {
-      field: 'email',
-      headerName: 'Email',
-      width: 200,
-      flex: 1.5,
-      minWidth: 150,
-      // Hide on mobile
-      hide: isMobile,
-    },
-    {
-      field: 'flagReason',
-      headerName: 'Reason',
-      width: 200,
-      flex: 1.5,
-      minWidth: 120,
-    },
-    {
-      field: 'flaggedAt',
-      headerName: 'Date',
-      width: 150,
-      flex: 1,
-      // Hide on smaller screens
-      hide: isMobile,
-    },
-    {
-      field: 'status',
-      headerName: 'Status',
-      width: 120,
-      flex: 0.8,
-      minWidth: 90,
+      field: 'fullName',
+      headerName: 'Full Name',
+      width: 180,
       renderCell: (params) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs ${
-            params.value === 'active'
-              ? 'bg-green-100 text-green-800'
-              : params.value === 'suspended'
-              ? 'bg-red-100 text-red-800'
-              : 'bg-yellow-100 text-yellow-800'
-          }`}
-        >
-          {params.value}
+        <span>
+          {params.row.firstName} {params.row.lastName}
         </span>
       ),
     },
+    { field: 'comment', headerName: 'Comment', width: 250 },
+    { field: 'reason', headerName: 'Reason', width: 300 },
+    {
+      field: 'date',
+      headerName: 'Date Flagged',
+      width: 180,
+      renderCell: (params) => (
+        <span>{new Date(params.row.date).toLocaleString()}</span>
+      ),
+    },
   ];
+
+  // Transform flagged data to rows format
+  const rows = flagged
+    ? flagged.map((item) => ({
+        id: item._id,
+        username: item.userData?.username || 'Unknown',
+        firstName: item.userData?.firstname || '',
+        lastName: item.userData?.lastname || '',
+        comment: item.comment,
+        reason: item.reason,
+        date: item.created_at,
+        postId: item.postid,
+        userId: item.userId,
+        email: item.userData?.email || '',
+      }))
+    : [];
 
   return (
     <div className="flex flex-col p-2 sm:p-4 md:p-6 w-full mt-16 md:mt-20">
@@ -89,7 +77,7 @@ function FlaggedUserPage() {
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className={`h-[350px] md:h-[500px] w-full`}>
             <DataTable
-              rows={flagged}
+              rows={rows}
               columns={columns}
               density={isMobile ? 'compact' : 'standard'}
               // Additional responsive props
