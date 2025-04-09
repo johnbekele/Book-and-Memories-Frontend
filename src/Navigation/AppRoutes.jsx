@@ -8,6 +8,7 @@ import {
 import AuthProvider from '../Context/AuthProvider';
 import ProtectedRoute from '../Navigation/ProtectRoutes';
 import LoadingSpinner from '../Components/LoadingSpinner';
+import SmallSpinner from '../Components/SmallSpinner';
 
 const LoginPage = lazy(() => import('../Pages/LoginPage'));
 const AuthSuccess = lazy(() => import('../Components/AuthSuccess'));
@@ -26,7 +27,7 @@ const AppRoutes = () => {
           <Route
             path="/login"
             element={
-              <Suspense fallback={<LoadingSpinner />}>
+              <Suspense fallback={<SmallSpinner />}>
                 <LoginPage />
               </Suspense>
             }
@@ -65,7 +66,7 @@ const AppRoutes = () => {
             path="/moderator-dashboard"
             element={
               <ProtectedRoute requiredRole="Moderator">
-                <Suspense fallback={<LoadingSpinner />}>
+                <Suspense fallback={<SmallSpinner />}>
                   <ModeratorDashboard />
                 </Suspense>
               </ProtectedRoute>
@@ -75,7 +76,7 @@ const AppRoutes = () => {
             path="/admin-dashboard"
             element={
               <ProtectedRoute requiredRole="Admin">
-                <Suspense fallback={<LoadingSpinner />}>
+                <Suspense fallback={<SmallSpinner />}>
                   <AdminDashboard />
                 </Suspense>
               </ProtectedRoute>
