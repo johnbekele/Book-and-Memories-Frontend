@@ -1,17 +1,16 @@
 import React, { lazy, Suspense } from 'react';
-
-const UserNavbar = lazy(() => import('../../Components/UserNavBar'));
 import { useFlagged } from '../../Hook/useFlagged';
+import FlaggedUserPage from '../ModeratorePages/FlaggedUserPage';
+
+//React.lazy load
+const UserNavbar = React.lazy(() => import('../../Components/UserNavBar'));
 
 function ModeratorDashboard() {
-  const { flagged, isLoading, isError, error } = useFlagged();
-
-  console.log('Flagged posts:', flagged);
-  console.log('Flagedusers:', flagged?.userData);
   return (
     <div>
       <Suspense fallback={<div>Loading...</div>}>
         <UserNavbar fromwhere="moderator" />
+        <FlaggedUserPage />
       </Suspense>
     </div>
   );

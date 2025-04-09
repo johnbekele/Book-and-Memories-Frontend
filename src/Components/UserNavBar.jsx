@@ -22,7 +22,7 @@ const UserNavBar = ({ fromwhere }) => {
   const navigate = useNavigate();
   const logger = useLogger();
   const { theme, toggleTheme, colors } = useTheme();
-  const isDark = theme === 'dark';
+  const isdark = theme === 'dark';
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -45,7 +45,7 @@ const UserNavBar = ({ fromwhere }) => {
   }, []);
 
   return (
-    <StyledNavbar colors={colors} isDark={isDark}>
+    <StyledNavbar colors={colors} isdark={isdark}>
       <div className="navbar-container">
         {/* Logo at the left edge */}
         <div className="logo-section">
@@ -95,7 +95,7 @@ const UserNavBar = ({ fromwhere }) => {
                   <motion.div
                     className="menu-item theme-toggle"
                     whileHover={{
-                      backgroundColor: isDark
+                      backgroundColor: isdark
                         ? 'rgba(255,255,255,0.05)'
                         : 'rgba(0,0,0,0.05)',
                     }}
@@ -108,20 +108,20 @@ const UserNavBar = ({ fromwhere }) => {
                       className="theme-button"
                     >
                       <div className="theme-label">
-                        {isDark ? (
+                        {isdark ? (
                           <MoonIcon className="theme-icon" />
                         ) : (
                           <SunIcon className="theme-icon" />
                         )}
-                        <span>{isDark ? 'Dark' : 'Light'}</span>
+                        <span>{isdark ? 'Dark' : 'Light'}</span>
                       </div>
                       <motion.div
-                        className={`toggle-track ${isDark ? 'active' : ''}`}
+                        className={`toggle-track ${isdark ? 'active' : ''}`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
                         <motion.div
-                          className={`toggle-thumb ${isDark ? 'active' : ''}`}
+                          className={`toggle-thumb ${isdark ? 'active' : ''}`}
                           layout
                           transition={{
                             type: 'spring',
@@ -138,7 +138,7 @@ const UserNavBar = ({ fromwhere }) => {
                   {/* Menu items */}
                   <motion.div
                     whileHover={{
-                      backgroundColor: isDark
+                      backgroundColor: isdark
                         ? 'rgba(255,255,255,0.05)'
                         : 'rgba(0,0,0,0.05)',
                     }}
@@ -154,7 +154,7 @@ const UserNavBar = ({ fromwhere }) => {
 
                   <motion.div
                     whileHover={{
-                      backgroundColor: isDark
+                      backgroundColor: isdark
                         ? 'rgba(255,255,255,0.05)'
                         : 'rgba(0,0,0,0.05)',
                     }}
@@ -172,7 +172,7 @@ const UserNavBar = ({ fromwhere }) => {
                     fromwhere !== 'user' && (
                       <motion.div
                         whileHover={{
-                          backgroundColor: isDark
+                          backgroundColor: isdark
                             ? 'rgba(255,255,255,0.05)'
                             : 'rgba(0,0,0,0.05)',
                         }}
@@ -194,7 +194,7 @@ const UserNavBar = ({ fromwhere }) => {
                     fromwhere !== 'admin' && (
                       <motion.div
                         whileHover={{
-                          backgroundColor: isDark
+                          backgroundColor: isdark
                             ? 'rgba(255,255,255,0.05)'
                             : 'rgba(0,0,0,0.05)',
                         }}
@@ -217,7 +217,7 @@ const UserNavBar = ({ fromwhere }) => {
                     fromwhere !== 'moderator' && (
                       <motion.div
                         whileHover={{
-                          backgroundColor: isDark
+                          backgroundColor: isdark
                             ? 'rgba(255,255,255,0.05)'
                             : 'rgba(0,0,0,0.05)',
                         }}
@@ -239,7 +239,7 @@ const UserNavBar = ({ fromwhere }) => {
 
                   <motion.div
                     whileHover={{
-                      backgroundColor: isDark
+                      backgroundColor: isdark
                         ? 'rgba(220,38,38,0.2)'
                         : 'rgba(254,226,226,1)',
                     }}
@@ -382,15 +382,15 @@ const StyledNavbar = styled.nav`
     right: 0;
     top: calc(100% + 0.75rem);
     width: 13rem; /* 52 units in tailwind */
-    background-color: ${(props) => (props.isDark ? '#1f1f1f' : '#ffffff')};
+    background-color: ${(props) => (props.isdark ? '#1f1f1f' : '#ffffff')};
     border-radius: 0.75rem;
     box-shadow: ${(props) =>
-      props.isDark
+      props.isdark
         ? '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2)'
         : '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'};
     overflow: hidden;
     z-index: 100;
-    border: 1px solid ${(props) => (props.isDark ? '#333' : '#e5e7eb')};
+    border: 1px solid ${(props) => (props.isdark ? '#333' : '#e5e7eb')};
   }
 
   .menu-item {
@@ -414,7 +414,7 @@ const StyledNavbar = styled.nav`
   .menu-icon {
     width: 1.1rem;
     height: 1.1rem;
-    color: ${(props) => (props.isDark ? '#a0a0a0' : '#6b7280')};
+    color: ${(props) => (props.isdark ? '#a0a0a0' : '#6b7280')};
   }
 
   .theme-toggle {
@@ -442,14 +442,14 @@ const StyledNavbar = styled.nav`
   .theme-icon {
     width: 1.1rem;
     height: 1.1rem;
-    color: ${(props) => (props.isDark ? '#a0a0a0' : '#6b7280')};
+    color: ${(props) => (props.isdark ? '#a0a0a0' : '#6b7280')};
   }
 
   .toggle-track {
     width: 2.25rem;
     height: 1.25rem;
     background-color: ${(props) =>
-      props.isDark ? 'rgba(255,255,255,0.2)' : '#d1d5db'};
+      props.isdark ? 'rgba(255,255,255,0.2)' : '#d1d5db'};
     border-radius: 9999px;
     position: relative;
     transition: background-color 0.3s ease;
@@ -475,7 +475,7 @@ const StyledNavbar = styled.nav`
 
   .menu-divider {
     height: 1px;
-    background-color: ${(props) => (props.isDark ? '#333' : '#e5e7eb')};
+    background-color: ${(props) => (props.isdark ? '#333' : '#e5e7eb')};
     margin: 0.25rem 0;
   }
 
@@ -490,7 +490,7 @@ const StyledNavbar = styled.nav`
   }
 
   .logout {
-    color: ${(props) => (props.isDark ? '#f87171' : '#dc2626')};
+    color: ${(props) => (props.isdark ? '#f87171' : '#dc2626')};
   }
 
   @media (max-width: 640px) {

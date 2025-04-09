@@ -5,6 +5,8 @@ import { useLogger } from '../src/Hook/useLogger.js';
 import { ThemeProvider } from '../src/Context/ThemeContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import ErrorBoundary from './ErrorBoundary.jsx';
+import CustomErrorFallback from './Components/CustomErrorFallback.jsx';
 
 function App() {
   const logger = useLogger();
@@ -36,11 +38,13 @@ function App() {
 
   return (
     <div>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AppRoutes />
-        </ThemeProvider>
-      </QueryClientProvider>
+      <ErrorBoundary fallback={CustomErrorFallback}>
+        <QueryClientProvider client={queryClient}>
+          <ThemeProvider>
+            <AppRoutes />
+          </ThemeProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
     </div>
   );
 }
