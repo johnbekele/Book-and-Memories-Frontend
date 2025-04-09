@@ -3,14 +3,43 @@ import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import { ThemeContext } from '../Context/ThemeContext'; // Adjust the import path as needed
 
-function DataTable({ rows, columns, density, hideFooterSelectedRowCount }) {
+function DataTable({
+  rows,
+  columns,
+  density,
+  hideFooterSelectedRowCount,
+  onSelectionChange,
+}) {
   // Get theme from context
   const { darkMode } = useContext(ThemeContext);
+  // State to track selected rows
+  const [selectedRows, setSelectedRows] = useState([]);
+
+  // Handle row selection change
+  const handleSelectionChange = (newSelection) => {
+    setSelectedRows(newSelection);
+
+    // If you provided an external handler, call it with the selected rows
+    if (onSelectionChange) {
+      // Get the full row data for selected IDs
+      const selectedRowsData = rows.filter((row) =>
+        newSelection.includes(row.id)
+      );
+      onSelectionChange(newSelection, selectedRowsData);
+    }
+
+    // You can also log or process the selected rows here
+  };
+  console.log('Selected row IDs:', selectedRows);
+  // console.log(
+  //   'Selected row data:',
+  //   rows.filter((row) => newSelection.includes(row.id))
+  // );
 
   // State for pagination
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    pageSize: 5,
+    pageSize: 20,
   });
 
   // Theme-based styles
@@ -63,10 +92,14 @@ function DataTable({ rows, columns, density, hideFooterSelectedRowCount }) {
         columns={columns}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
-        pageSizeOptions={[5, 10]}
+        pageSizeOptions={[5, 10, 20]}
         checkboxSelection
         disableRowSelectionOnClick
         sx={getDataGridStyles()}
+        rowSelectionModel={selectedRows}
+        onRowSelectionModelChange={handleSelectionChange}
+        hideFooterSelectedRowCount={hideFooterSelectedRowCount}
+        density={density || 'standard'}
       />
     </Paper>
   );

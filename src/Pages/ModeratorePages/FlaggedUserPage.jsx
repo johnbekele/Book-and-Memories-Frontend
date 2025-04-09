@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useFlagged } from '../../Hook/useFlagged';
 import DataTable from '../../Components/DataTable';
-import { useMediaQuery } from '@mui/material'; // Add this import for responsive design
+import { useMediaQuery } from '@mui/material';
+import Avatar from '../../Components/Avatar';
 
 function FlaggedUserPage() {
   const { flagged, isLoading, isError, error } = useFlagged();
@@ -12,7 +13,12 @@ function FlaggedUserPage() {
   // Define columns for flagged comments
   const columns = [
     { field: 'id', headerName: 'ID', width: 100 },
-    { field: 'username', headerName: 'Username', width: 150 },
+    {
+      field: 'user',
+      headerName: 'User',
+      width: 150,
+      renderCell: (params) => params.value,
+    },
     {
       field: 'fullName',
       headerName: 'Full Name',
@@ -33,13 +39,25 @@ function FlaggedUserPage() {
         <span>{new Date(params.row.date).toLocaleString()}</span>
       ),
     },
+    {
+      field: 'decision',
+      headerName: 'Decision',
+      width: 300,
+      renderCell: (params) => params.value,
+    },
   ];
 
   // Transform flagged data to rows format
   const rows = flagged
     ? flagged.map((item) => ({
         id: item._id,
-        username: item.userData?.username || 'Unknown',
+        user: (
+          <Avatar
+            src={item.userData?.profilePicture}
+            alt={item.userData?.firstname || 'User'}
+            className="h-8 w-8 rounded-full"
+          />
+        ),
         firstName: item.userData?.firstname || '',
         lastName: item.userData?.lastname || '',
         comment: item.comment,

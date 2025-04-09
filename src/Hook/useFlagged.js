@@ -72,7 +72,7 @@ export function useFlagged() {
       firstname: user.firstname,
       lastname: user.lastname,
       email: user.email,
-      profilePicture: user.profilePicture,
+      profilePicture: user.photo,
     };
   });
 
