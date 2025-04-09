@@ -98,13 +98,15 @@ const LoginPage = () => {
         <AnimatedLottie />
       </div>
       <div className="flex items-center justify-center p-4 md:p-8">
-        <LoginForm
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          handleGoogleLogin={handleGoogleLogin}
-          errors={errors}
-        />
+        <div className="w-full max-w-[1000px]">
+          <LoginForm
+            formData={formData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            handleGoogleLogin={handleGoogleLogin}
+            errors={errors}
+          />
+        </div>
       </div>
     </div>
   );

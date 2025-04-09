@@ -3,12 +3,12 @@ import styled from 'styled-components';
 
 const LoadingSpinner = () => {
   return (
-    <div className="flex-1 justify-center items-center">
+    <div className="flex justify-center items-center h-screen w-full fixed top-0 left-0">
       <StyledWrapper>
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          height="200px"
-          width="200px"
+          height="100px"
+          width="100px"
           viewBox="0 0 200 200"
           className="pencil"
         >
@@ -111,8 +111,8 @@ const LoadingSpinner = () => {
 const StyledWrapper = styled.div`
   .pencil {
     display: block;
-    width: 10em;
-    height: 10em;
+    width: 5em;
+    height: 5em;
   }
 
   .pencil__body1,

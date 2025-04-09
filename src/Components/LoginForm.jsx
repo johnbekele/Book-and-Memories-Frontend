@@ -64,7 +64,14 @@ const LoginForm = ({
               />
             </div>
             {errors?.identifier && (
-              <div className="error">{errors.identifier}</div>
+              <motion.div
+                className="error"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {errors.identifier}
+              </motion.div>
             )}
           </div>
 
@@ -92,7 +99,16 @@ const LoginForm = ({
                 onChange={handleChange}
               />
             </div>
-            {errors?.password && <div className="error">{errors.password}</div>}
+            {errors?.password && (
+              <motion.div
+                className="error"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {errors.password}
+              </motion.div>
+            )}
           </div>
 
           <div className="flex-row">
@@ -234,7 +250,7 @@ const StyledWrapper = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    max-width: 450px;
+    max-width: 1000px;
     padding: 2.5rem;
     border-radius: 16px;
     background-color: ${(props) => (props.isDark ? '#1f1f1f' : '#ffffff')};
