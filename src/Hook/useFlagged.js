@@ -28,6 +28,14 @@ const fetchPosts = async () => {
   return response.data;
 };
 
+// Fetch function to delete a flagged post
+const deleteFlaggedPost = async (postId) => {
+  const response = await axios.delete(`${API_URL}/posts/flagged/${postId}`, {
+    headers: { Authorization: `Bearer ${token()}` },
+  });
+  return response.data;
+};
+
 //use Query for fetching flagged posts
 
 export function useFlagged() {
