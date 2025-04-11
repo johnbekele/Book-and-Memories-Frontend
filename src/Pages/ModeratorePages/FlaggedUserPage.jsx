@@ -3,6 +3,7 @@ import { useFlagged } from '../../Hook/useFlagged';
 import DataTable from '../../Components/DataTable';
 import { useMediaQuery } from '@mui/material';
 import Avatar from '../../Components/Avatar';
+import SplitButton from '../../Components/SplitButton';
 
 function FlaggedUserPage() {
   const { flagged, isLoading, isError, error } = useFlagged();
@@ -66,6 +67,7 @@ function FlaggedUserPage() {
         postId: item.postid,
         userId: item.userId,
         email: item.userData?.email || '',
+        decision: <SplitButton />,
       }))
     : [];
 

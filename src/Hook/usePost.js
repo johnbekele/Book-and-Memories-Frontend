@@ -20,6 +20,12 @@ const fetchAllUsers = async () => {
   return response.data;
 };
 
+const deletePost = async (postId) => {
+  const response = await axios.delete(`${API_URL}/posts/${postId}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return response.data;
+};
 // //Post API functions
 // const addPost = async (post) => {
 //   const response = await axios.post(`${API_URL}/posts/add`, post, {
@@ -108,6 +114,16 @@ export function usePost() {
     },
   });
 
+  // Mutation for deleting a post
+  const deleteMutation = useMutation({
+    mutationFn: (postId) => {
+      return deletePost(postId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+
   // Create a user lookup map for quick access
   const userMap = {};
   if (usersQuery.data) {
@@ -165,5 +181,12 @@ export function usePost() {
       }
     },
     addCommentLoading: commentMutation.isPending,
+    deletePost: async (postId) => {
+      try {
+        await deleteMutation.mutateAsync(postId);
+      } catch (error) {
+        console.error('Error deleting post:', error);
+      }
+    },
   };
 }

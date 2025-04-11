@@ -10,15 +10,17 @@ import { useTheme } from '../Context/ThemeContext';
 import logger from '../utils/logger';
 
 const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
-  // Use the post data directly from React Query
-  const isLiked = post.likes?.includes(currentUser?.id) || false;
-  const likesCount = post.likes?.length || 0;
+  // Optimistic UI state for likes
+  const [optimisticLikes, setOptimisticLikes] = useState(post.likes || []);
+  const [isLikeLoading, setIsLikeLoading] = useState(false);
+
+  // Use optimistic state instead of props directly
+  const isLiked = optimisticLikes.includes(currentUser?.id) || false;
+  const likesCount = optimisticLikes.length || 0;
 
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const commentInputRef = useRef(null);
-
-  //debugug
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState(null);
 
@@ -28,8 +30,6 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
 
   // Get post user data
   const postUser = post.userData;
-
-  // logger.log('Post in card:', postUser);
 
   // Generate fallback images
   const userProfileImage =
@@ -43,9 +43,34 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
     book?.cover_image ||
     'https://dummyimage.com/200x300/e0e0e0/ffffff&text=No+Cover';
 
-  // hadle like funtionality
-  const handleLike = () => {
-    onLike(post._id, isLiked);
+  // Update optimistic likes when the prop changes (after API response)
+  useEffect(() => {
+    if (!isLikeLoading) {
+      setOptimisticLikes(post.likes || []);
+    }
+  }, [post.likes, isLikeLoading]);
+
+  // Handle like functionality with optimistic updates
+  const handleLike = async () => {
+    try {
+      setIsLikeLoading(true);
+
+      // Optimistically update UI
+      const newLikes = isLiked
+        ? optimisticLikes.filter((id) => id !== currentUser?.id)
+        : [...optimisticLikes, currentUser?.id];
+
+      setOptimisticLikes(newLikes);
+
+      // Make the actual API call
+      await onLike(post._id, isLiked);
+    } catch (error) {
+      // If the API call fails, revert to the original state
+      console.error('Error liking post:', error);
+      setOptimisticLikes(post.likes || []);
+    } finally {
+      setIsLikeLoading(false);
+    }
   };
 
   const handleCommentSubmit = async (e) => {
@@ -71,6 +96,7 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
     }
   };
 
+  // Focus on the comment input when comments are shown
   useEffect(() => {
     if (showComments && commentInputRef.current) {
       commentInputRef.current.focus();
@@ -135,6 +161,7 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                 onClick={handleLike}
                 className="mr-3 focus:outline-none"
                 aria-label={isLiked ? 'Unlike' : 'Like'}
+                disabled={isLikeLoading}
               >
                 {isLiked ? (
                   <HeartSolid className="h-6 w-6 text-red-500" />
