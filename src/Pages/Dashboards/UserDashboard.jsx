@@ -4,15 +4,17 @@ import UserNavBar from '../../Components/UserNavBar';
 import FeedPage from '../UserPages/FeedPage';
 import BookSidebar from '../../Components/BookSidebar';
 import { useTheme } from '../../Context/ThemeContext';
+import { useLogger } from '../../Hook/useLogger.js';
 
 const AddBookPage = lazy(() => import('../UserPages/AddBookPage'));
 
 function UserDashboard() {
+  const logger = useLogger();
   const { darkMode } = useTheme();
   const [addBookPage, setAddBookPage] = useState(false);
 
   const handleaddBookPage = () => {
-    console.log('Add Book Page initialized');
+    logger.log('Add Book Page initialized');
     setAddBookPage(!addBookPage);
   };
 

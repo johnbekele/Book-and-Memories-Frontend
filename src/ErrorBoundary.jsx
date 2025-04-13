@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLogger } from '../src/Hook/useLogger.js';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

@@ -4,8 +4,10 @@ import DataTable from '../../Components/DataTable';
 import { useMediaQuery } from '@mui/material';
 import Avatar from '../../Components/Avatar';
 import SplitButton from '../../Components/SplitButton';
+import { useLogger } from '../../Hook/useLogger.js';
 
 function FlaggedUserPage() {
+  const logger = useLogger();
   const {
     deleteFlaggedPost,
     repostFlaggedPostMutation,
@@ -30,19 +32,19 @@ function FlaggedUserPage() {
         handleEscalation(row._id);
         break;
       default:
-        console.log('Invalid option selected');
+        logger.log('Invalid option selected');
         break;
     }
   };
 
   const handleConfirmed = async (postId) => {
-    console.log('Confirmed:', postId);
+    logger.log('Confirmed:', postId);
     try {
       const response = await deleteFlaggedPost(postId);
-      console.log('Response:', response);
+      logger.log('Response:', response);
       // Optionally, you can trigger a refetch or update the UI here
     } catch (error) {
-      console.error('Error deleting flagged post:', error);
+      logger.error('Error deleting flagged post:', error);
     }
   };
   const handleFalsePositive = async (postId, disableBtn) => {
@@ -51,17 +53,17 @@ function FlaggedUserPage() {
       setStatus((prev) => ({ ...prev, [postId]: 'false_positive' }));
       disableBtn();
 
-      console.log('Response:', response);
+      logger.log('Response:', response);
     } catch (error) {
-      console.error('Error reposting flagged post:', error);
+      logger.error('Error reposting flagged post:', error);
     }
   };
   const handleEscalation = async (postId) => {
-    console.log('Confirmed:', postId);
+    logger.log('Confirmed:', postId);
   };
 
   const handlerowSelectionChange = (selectedRows) => {
-    console.log('Selected rows:', selectedRows);
+    logger.log('Selected rows:', selectedRows);
   };
 
   // Define columns for flagged comments

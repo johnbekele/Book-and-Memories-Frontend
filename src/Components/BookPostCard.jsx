@@ -66,7 +66,7 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
       await onLike(post._id, isLiked);
     } catch (error) {
       // If the API call fails, revert to the original state
-      console.error('Error liking post:', error);
+      logger.error('Error liking post:', error);
       setOptimisticLikes(post.likes || []);
     } finally {
       setIsLikeLoading(false);
@@ -88,7 +88,7 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
           setCommentText('');
         }
       } catch (error) {
-        console.error('Error submitting comment:', error);
+        logger.error('Error submitting comment:', error);
         setCommentError('Failed to post comment. Please try again.');
       } finally {
         setIsSubmittingComment(false);

@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react';
 import { useBooks } from '../../Hook/useBooks';
 import { usePost } from '../../Hook/usePost';
+import { useLogger } from '../../Hook/useLogger.js';
 import BookPostCard from '../../Components/BookPostCard';
 import ModerationWarning from '../../Components/ModerationWarning';
 import AuthContext from '../../Context/AuthContext';
 
 function FeedPage() {
+  const logger = useLogger();
   const { user } = useContext(AuthContext);
   const { books, isLoading: booksLoading } = useBooks();
   const {
@@ -40,7 +42,7 @@ function FeedPage() {
 
       // Check if result exists before accessing its properties
       if (!result) {
-        console.error('No result returned from addComment function');
+        logger.error('No result returned from addComment function');
         return false;
       }
 
@@ -54,10 +56,10 @@ function FeedPage() {
         return false;
       }
 
-      console.log('Comment sent successfully');
+      logger.log('Comment sent successfully');
       return true;
     } catch (error) {
-      console.error('Error adding comment:', error);
+      logger.error('Error adding comment:', error);
       return false;
     }
   };

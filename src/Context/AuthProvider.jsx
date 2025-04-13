@@ -25,9 +25,9 @@ const AuthProvider = ({ children }) => {
         setLoading(true);
 
         // Debug token
-        logger.log('Token being used:', token);
-        logger.log('Token type:', typeof token);
-        logger.log('Token length:', token ? token.length : 0);
+        // logger.log('Token being used:', token);
+        // logger.log('Token type:', typeof token);
+        // logger.log('Token length:', token ? token.length : 0);
 
         if (!token) {
           logger.error('No valid token available');
@@ -36,7 +36,7 @@ const AuthProvider = ({ children }) => {
         }
 
         const authHeader = `Bearer ${token}`;
-        logger.log('Authorization header:', authHeader);
+        // logger.log('Authorization header:', authHeader);
 
         // Make the actual fetch request
         const response = await fetch(`${API_URL}/auth/profile`, {

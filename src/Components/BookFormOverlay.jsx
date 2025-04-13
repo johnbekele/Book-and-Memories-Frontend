@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBooks } from '../Hook/useBooks.js';
+import logger from '../utils/logger.js';
 import { ThemeContext } from '../Context/ThemeContext.jsx';
 import { toast } from 'react-toastify';
 import DatePicker from 'react-datepicker';
@@ -91,7 +92,7 @@ const BookFormOverlay = ({ onClose }) => {
       setBookSuggestions(books);
       setShowSuggestions(true);
     } catch (error) {
-      console.error('Error searching books:', error);
+      logger.error('Error searching books:', error);
     } finally {
       setIsSearching(false);
     }
@@ -169,7 +170,7 @@ const BookFormOverlay = ({ onClose }) => {
       onClose();
     } catch (error) {
       toast.error('Failed to add book. Please try again.');
-      console.error('Error adding book:', error);
+      logger.error('Error adding book:', error);
     }
   };
 

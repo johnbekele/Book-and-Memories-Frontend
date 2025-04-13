@@ -17,7 +17,7 @@ const fetchAllUsers = async () => {
   const response = await axios.get(`${API_URL}/auth/users`, {
     headers: { Authorization: `Bearer ${token()}` },
   });
-  console.log('All users:', response.data);
+
   return response.data;
 };
 

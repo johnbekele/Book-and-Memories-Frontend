@@ -14,7 +14,6 @@ const fetchBooks = async () => {
 };
 
 const addBook = async (book) => {
-  console.log('Adding book:', book);
   const response = await axios.post(`${API_URL}/books/add`, book, {
     headers: { Authorization: `Bearer ${getToken()}` },
   });

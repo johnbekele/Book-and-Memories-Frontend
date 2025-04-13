@@ -1,5 +1,6 @@
 // context/ThemeContext.js
 import React, { createContext, useState, useEffect } from 'react';
+import logger from '../utils/logger';
 
 export const ThemeContext = createContext();
 
@@ -33,7 +34,7 @@ export const ThemeProvider = ({ children }) => {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
       const handleChange = (e) => {
-        console.log('System theme changed to:', e.matches ? 'dark' : 'light');
+        logger.log('System theme changed to:', e.matches ? 'dark' : 'light');
         setTheme(e.matches ? 'dark' : 'light');
       };
 
@@ -92,11 +93,11 @@ export const ThemeProvider = ({ children }) => {
   }, [theme, isSystemTheme]);
 
   const toggleTheme = () => {
-    console.log('Toggling theme from:', theme);
+    logger.log('Toggling theme from:', theme);
     setIsSystemTheme(false);
     setTheme((prev) => {
       const newTheme = prev === 'light' ? 'dark' : 'light';
-      console.log('New theme:', newTheme);
+      logger.log('New theme:', newTheme);
       return newTheme;
     });
   };
