@@ -37,14 +37,14 @@ const BookSidebar = ({ openaddpage }) => {
   const navItems = [
     {
       name: 'Home',
-      path: '/user-dashboard',
+      path: '#',
       icon: HomeIcon,
       activeIcon: HomeSolid,
       isCustomAction: false,
     },
     {
       name: 'Explore',
-      path: '/explore',
+      path: '#',
       icon: MagnifyingGlassIcon,
       activeIcon: MagnifyingGlassSolid,
       isCustomAction: false,

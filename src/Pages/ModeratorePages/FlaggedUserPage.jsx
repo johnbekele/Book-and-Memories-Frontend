@@ -6,10 +6,63 @@ import Avatar from '../../Components/Avatar';
 import SplitButton from '../../Components/SplitButton';
 
 function FlaggedUserPage() {
-  const { flagged, isLoading, isError, error } = useFlagged();
+  const {
+    deleteFlaggedPost,
+    repostFlaggedPostMutation,
+    flagged,
+    isLoading,
+    isError,
+    error,
+  } = useFlagged();
   const isMobile = useMediaQuery('(max-width:768px)'); // Detect mobile screens
+  const options = ['false_positive', 'confirmed', 'escalate'];
+  const [status, setStatus] = useState({}); // State to manage status
 
-  console.log('Flagged users:', flagged);
+  const handleDecision = (selectedOption, row) => {
+    switch (selectedOption) {
+      case 'false_positive':
+        handleFalsePositive(row._id);
+        break;
+      case 'confirmed':
+        handleConfirmed(row._id);
+        break;
+      case 'escalate':
+        handleEscalation(row._id);
+        break;
+      default:
+        console.log('Invalid option selected');
+        break;
+    }
+  };
+
+  const handleConfirmed = async (postId) => {
+    console.log('Confirmed:', postId);
+    try {
+      const response = await deleteFlaggedPost(postId);
+      console.log('Response:', response);
+      // Optionally, you can trigger a refetch or update the UI here
+    } catch (error) {
+      console.error('Error deleting flagged post:', error);
+    }
+  };
+  const handleFalsePositive = async (postId, disableBtn) => {
+    try {
+      const response = await repostFlaggedPostMutation(postId);
+      setStatus((prev) => ({ ...prev, [postId]: 'false_positive' }));
+      disableBtn();
+
+      console.log('Response:', response);
+    } catch (error) {
+      console.error('Error reposting flagged post:', error);
+    }
+  };
+  const handleEscalation = async (postId) => {
+    console.log('Confirmed:', postId);
+  };
+
+  const handlerowSelectionChange = (selectedRows) => {
+    console.log('Selected rows:', selectedRows);
+  };
 
   // Define columns for flagged comments
   const columns = [
@@ -46,6 +99,26 @@ function FlaggedUserPage() {
       width: 300,
       renderCell: (params) => params.value,
     },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: 200,
+      renderCell: (params) => {
+        const currentStatus = status[params.row.id] || 'Pending';
+        const bgColor =
+          currentStatus === 'false_positive'
+            ? 'bg-green-100 text-green-800'
+            : currentStatus === 'confirmed'
+            ? 'bg-red-100 text-red-800'
+            : 'bg-yellow-100 text-yellow-800';
+
+        return (
+          <span className={`${bgColor} px-2 py-1 rounded-full`}>
+            {currentStatus}
+          </span>
+        );
+      },
+    },
   ];
 
   // Transform flagged data to rows format
@@ -67,12 +140,20 @@ function FlaggedUserPage() {
         postId: item.postid,
         userId: item.userId,
         email: item.userData?.email || '',
-        decision: <SplitButton />,
+        decision: (
+          <SplitButton
+            options={options}
+            handleDecision={(selectedOption) =>
+              handleDecision(selectedOption, item)
+            }
+          />
+        ),
+        // Don't define `status` here — it's now handled by the column renderCell
       }))
     : [];
 
   return (
-    <div className="flex flex-col p-2 sm:p-4 md:p-6 w-full mt-16 md:mt-20">
+    <div className="flex flex-col p-2 sm:p-4 md:p-6 w-full mt-10 md:mt-1">
       <div className="mb-4 md:mb-6">
         <h1 className="text-xl md:text-2xl font-bold text-gray-800">
           Flagged Users
@@ -94,14 +175,15 @@ function FlaggedUserPage() {
           </span>
         </div>
       ) : flagged && flagged.length > 0 ? (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className={`h-[350px] md:h-[500px] w-full`}>
+        <div className="bg-white rounded-lg shadow p-4">
+          <div className="w-full overflow-auto">
             <DataTable
               rows={rows}
               columns={columns}
               density={isMobile ? 'compact' : 'standard'}
-              // Additional responsive props
+              selectedRowsToParent={handlerowSelectionChange}
               hideFooterSelectedRowCount={isMobile}
+              options={options}
             />
           </div>
         </div>

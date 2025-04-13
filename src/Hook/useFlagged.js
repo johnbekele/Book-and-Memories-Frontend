@@ -21,6 +21,7 @@ const fetchAllUsers = async () => {
   return response.data;
 };
 
+//Fetch for aggregated data
 const fetchPosts = async () => {
   const response = await axios.get(`${API_URL}/posts`, {
     headers: { Authorization: `Bearer ${token()}` },
@@ -29,10 +30,25 @@ const fetchPosts = async () => {
 };
 
 // Fetch function to delete a flagged post
-const deleteFlaggedPost = async (postId) => {
-  const response = await axios.delete(`${API_URL}/posts/flagged/${postId}`, {
-    headers: { Authorization: `Bearer ${token()}` },
-  });
+const deletereq = async (postId) => {
+  const response = await axios.delete(
+    `${API_URL}/posts/flagged/delete/${postId}`,
+    {
+      headers: { Authorization: `Bearer ${token()}` },
+    }
+  );
+  return response.data;
+};
+
+//Fetch function to repost a flagged post
+const repostreq = async (postId) => {
+  const response = await axios.post(
+    `${API_URL}/posts/flagged/repost/${postId}`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${token()}` },
+    }
+  );
   return response.data;
 };
 
@@ -94,10 +110,27 @@ export function useFlagged() {
     };
   });
 
+  // Mutation for deleting a flagged post
+  const deleteFlaggedPostMutation = useMutation({
+    mutationFn: deletereq,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['flaggedPosts']);
+    },
+  });
+
+  // Mutation for reposting a flagged post
+  const repostFlaggedPostMutation = useMutation({
+    mutationFn: repostreq,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['flaggedPosts']);
+    },
+  });
   return {
     flagged: flaggedWithUser,
     isLoading: FlaggedQuery.isLoading,
     isError: FlaggedQuery.isError,
     error: FlaggedQuery.error,
+    deleteFlaggedPost: deleteFlaggedPostMutation.mutate,
+    repostFlaggedPostMutation: repostFlaggedPostMutation.mutate,
   };
 }

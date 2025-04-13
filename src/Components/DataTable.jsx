@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import { ThemeContext } from '../Context/ThemeContext'; // Adjust the import path as needed
+import CustomFooter from './CustomFooter'; // Adjust the import path as needed
 
 function DataTable({
   rows,
@@ -9,6 +10,7 @@ function DataTable({
   density,
   hideFooterSelectedRowCount,
   onSelectionChange,
+  selectedRowsToParent,
 }) {
   // Get theme from context
   const { darkMode } = useContext(ThemeContext);
@@ -18,7 +20,7 @@ function DataTable({
   // Handle row selection change
   const handleSelectionChange = (newSelection) => {
     setSelectedRows(newSelection);
-
+    selectedRowsToParent(newSelection);
     // If you provided an external handler, call it with the selected rows
     if (onSelectionChange) {
       // Get the full row data for selected IDs
@@ -30,11 +32,6 @@ function DataTable({
 
     // You can also log or process the selected rows here
   };
-  console.log('Selected row IDs:', selectedRows);
-  // console.log(
-  //   'Selected row data:',
-  //   rows.filter((row) => newSelection.includes(row.id))
-  // );
 
   // State for pagination
   const [paginationModel, setPaginationModel] = useState({
@@ -45,7 +42,7 @@ function DataTable({
   // Theme-based styles
   const getThemeStyles = () => {
     return {
-      height: 400,
+      height: 700,
       width: '100%',
       backgroundColor: darkMode ? '#1e1e1e' : '#ffffff',
       color: darkMode ? '#ffffff' : '#1e1e1e',
@@ -100,6 +97,7 @@ function DataTable({
         onRowSelectionModelChange={handleSelectionChange}
         hideFooterSelectedRowCount={hideFooterSelectedRowCount}
         density={density || 'standard'}
+        slots={{ footer: CustomFooter }}
       />
     </Paper>
   );
