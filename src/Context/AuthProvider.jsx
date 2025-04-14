@@ -112,6 +112,9 @@ const AuthProvider = ({ children }) => {
   const login = async (loginData) => {
     try {
       setLoading(true);
+      alert(
+        'First-time login may take 5-10 seconds due to API initialization. Thank you for your patience.'
+      );
       logger.log('Attempting login with:', loginData);
 
       const response = await fetch(`${API_URL}/auth/login`, {
@@ -175,6 +178,9 @@ const AuthProvider = ({ children }) => {
   // Google login request
   const googleLogin = () => {
     setLoading(true);
+    alert(
+      'First-time login may take 5-10 seconds due to API initialization. Thank you for your patience.'
+    );
     logger.log('Initiating Google login');
     window.location.href = `${API_URL}/auth/google`;
   };
