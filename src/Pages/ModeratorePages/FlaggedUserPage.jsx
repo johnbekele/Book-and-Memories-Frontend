@@ -102,23 +102,21 @@ function FlaggedUserPage() {
       renderCell: (params) => params.value,
     },
     {
-      field: 'status',
+      field: 'statusValue',
       headerName: 'Status',
       width: 200,
       renderCell: (params) => {
-        const currentStatus = status[params.row.id] || 'Pending';
-        const bgColor =
-          currentStatus === 'false_positive'
-            ? 'bg-green-100 text-green-800'
-            : currentStatus === 'confirmed'
-            ? 'bg-red-100 text-red-800'
-            : 'bg-yellow-100 text-yellow-800';
+        const status = String(params.row.statusValue || '').toLowerCase();
 
-        return (
-          <span className={`${bgColor} px-2 py-1 rounded-full`}>
-            {currentStatus}
-          </span>
-        );
+        if (status.includes('false') && status.includes('positive')) {
+          return <span className="text-green-500">False Positive</span>;
+        } else if (status.includes('escalate')) {
+          return <span className="text-red-500">Escalalate</span>;
+        } else if (status.includes('pending')) {
+          return <span className="text-yellow-500">Pending</span>;
+        } else {
+          return <span className="text-gray-500">Pending ({status})</span>;
+        }
       },
     },
   ];
@@ -150,7 +148,7 @@ function FlaggedUserPage() {
             }
           />
         ),
-        // Don't define `status` here — it's now handled by the column renderCell
+        statusValue: item.status,
       }))
     : [];
 

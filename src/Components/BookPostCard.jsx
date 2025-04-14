@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useContext } from 'react';
 import {
   HeartIcon as HeartOutline,
   ChatBubbleOvalLeftIcon,
@@ -9,10 +9,20 @@ import Avatar from './Avatar';
 import { useTheme } from '../Context/ThemeContext';
 import logger from '../utils/logger';
 
-const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
+const BookPostCard = ({
+  post,
+  book,
+  currentUser,
+  onLike,
+  onComment,
+  onDelete,
+  onReport,
+  user,
+}) => {
   // Optimistic UI state for likes
   const [optimisticLikes, setOptimisticLikes] = useState(post.likes || []);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
+  const [isHovering, setIsHovering] = useState(null);
 
   // Use optimistic state instead of props directly
   const isLiked = optimisticLikes.includes(currentUser?.id) || false;
@@ -252,14 +262,52 @@ const BookPostCard = ({ post, book, currentUser, onLike, onComment }) => {
                         </span>{' '}
                         {comment.text}
                       </p>
-                      <p
-                        style={{ color: isDark ? '#a0aec0' : '#718096' }}
-                        className="text-xs"
+                      <div
+                        key={comment._id}
+                        className="flex flex-row gap-5"
+                        onMouseEnter={() => setIsHovering(comment._id)}
+                        onMouseLeave={() => setIsHovering(null)}
                       >
-                        {new Date(
-                          comment.created_at || Date.now()
-                        ).toLocaleDateString()}
-                      </p>
+                        <p
+                          style={{ color: isDark ? '#a0aec0' : '#718096' }}
+                          className="text-xs"
+                        >
+                          {new Date(
+                            comment.created_at || Date.now()
+                          ).toLocaleDateString()}
+                        </p>
+
+                        {/* delete will be shown only for comment owners  */}
+                        {user.id === comment.user && (
+                          <span
+                            style={{
+                              color: isDark ? '#a0aec0' : '#718096',
+                              display:
+                                isHovering === comment._id ? 'block' : 'none',
+                            }}
+                            className="text-xs cursor-default hover:underline hover:text-amber-50 
+    active:text-white transition-colors 
+    active:drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+                            onClick={() => onDelete(comment._id)}
+                          >
+                            delete
+                          </span>
+                        )}
+
+                        <span
+                          style={{
+                            color: isDark ? '#a0aec0' : '#718096',
+                            display:
+                              isHovering === comment._id ? 'block' : 'none',
+                          }}
+                          className="text-xs cursor-default hover:underline hover:text-amber-50 
+    active:text-white transition-colors 
+    active:drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]"
+                          onClick={onReport}
+                        >
+                          report
+                        </span>
+                      </div>
                     </div>
                   ))
                 ) : (

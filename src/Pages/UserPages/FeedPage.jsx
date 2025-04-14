@@ -17,6 +17,7 @@ function FeedPage() {
     error,
     likePost,
     addComment,
+    deletePost,
   } = usePost();
 
   // Add state for moderation warnings
@@ -69,6 +70,14 @@ function FeedPage() {
     return books.find((book) => book._id === postBookId) || null;
   };
 
+  const handleDelete = async (commentID) => {
+    console.log('comment id to delete :', commentID);
+    deletePost(commentID);
+  };
+  const handleReport = async () => {
+    alert('we have recived you report thank you for your coopration !');
+  };
+
   return (
     <div className="max-w-screen-md mx-auto p-4">
       {isLoading && <p className="text-center">Loading...</p>}
@@ -100,9 +109,12 @@ function FeedPage() {
             <BookPostCard
               post={post}
               book={book}
+              user={user}
               currentUser={currentUser}
               onLike={handleLike}
               onComment={handleComment}
+              onDelete={handleDelete}
+              onReport={handleReport}
             />
           </div>
         );

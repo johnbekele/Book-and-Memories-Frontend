@@ -20,10 +20,13 @@ const fetchAllUsers = async () => {
   return response.data;
 };
 
-const deletePost = async (postId) => {
-  const response = await axios.delete(`${API_URL}/posts/${postId}`, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  });
+const deletePostfn = async (commentID) => {
+  const response = await axios.delete(
+    `${API_URL}/posts/delete/mycomment/${commentID}`,
+    {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    }
+  );
   return response.data;
 };
 // //Post API functions
@@ -116,8 +119,8 @@ export function usePost() {
 
   // Mutation for deleting a post
   const deleteMutation = useMutation({
-    mutationFn: (postId) => {
-      return deletePost(postId);
+    mutationFn: (commentID) => {
+      return deletePostfn(commentID);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
@@ -181,12 +184,6 @@ export function usePost() {
       }
     },
     addCommentLoading: commentMutation.isPending,
-    deletePost: async (postId) => {
-      try {
-        await deleteMutation.mutateAsync(postId);
-      } catch (error) {
-        console.error('Error deleting post:', error);
-      }
-    },
+    deletePost: deleteMutation.mutate,
   };
 }
