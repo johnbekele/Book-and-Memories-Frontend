@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../Context/ThemeContext';
+import NotificationModal from './NotificationModal';
 
 // Import icons
 import {
@@ -13,6 +14,8 @@ import {
   PlusCircleIcon,
   Bars3Icon,
   XMarkIcon,
+  BellIcon,
+  BellAlertIcon,
 } from '@heroicons/react/24/outline';
 
 import {
@@ -22,17 +25,28 @@ import {
   HeartIcon as HeartSolid,
   UserCircleIcon as UserCircleSolid,
   BookmarkIcon as BookmarkSolid,
+  BellIcon as BellSolid,
 } from '@heroicons/react/24/solid';
 
-const BookSidebar = ({ openaddpage }) => {
+import { format } from 'date-fns';
+
+const BookSidebar = ({ openaddpage, onNotification }) => {
   // Use the new theme context
   const { theme, colors, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(3); // Mock count, replace with API call
 
-  // Custom handler for post action
+  // Custom handler for notifications
+  const handleOpenNotifications = () => {
+    setNotificationModalOpen(true);
+    setUnreadNotifications(0); // Reset notification count when opening
+  };
+
+  useEffect(() => {}, [notificationModalOpen]);
 
   const navItems = [
     {
@@ -48,6 +62,15 @@ const BookSidebar = ({ openaddpage }) => {
       icon: MagnifyingGlassIcon,
       activeIcon: MagnifyingGlassSolid,
       isCustomAction: false,
+    },
+    {
+      name: 'Notifications',
+      path: '#notifications',
+      icon: unreadNotifications > 0 ? BellAlertIcon : BellIcon,
+      activeIcon: BellSolid,
+      isCustomAction: true,
+      action: onNotification,
+      badge: unreadNotifications > 0 ? unreadNotifications : null,
     },
     {
       name: 'Post',
@@ -97,8 +120,19 @@ const BookSidebar = ({ openaddpage }) => {
     };
 
     const commonClasses = isMobile
-      ? 'flex flex-col items-center justify-center'
-      : 'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all';
+      ? 'flex flex-col items-center justify-center relative'
+      : 'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all relative';
+
+    // Badge for notifications
+    const badge = item.badge ? (
+      <span
+        className={`absolute ${
+          isMobile ? 'top-0 right-1' : 'top-2 right-3'
+        } bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center`}
+      >
+        {item.badge > 9 ? '9+' : item.badge}
+      </span>
+    ) : null;
 
     if (item.isCustomAction) {
       return (
@@ -115,6 +149,7 @@ const BookSidebar = ({ openaddpage }) => {
           <span className={isMobile ? 'text-xs mt-1' : 'ml-3'}>
             {item.name}
           </span>
+          {badge}
         </button>
       );
     } else {
@@ -132,6 +167,7 @@ const BookSidebar = ({ openaddpage }) => {
           <span className={isMobile ? 'text-xs mt-1' : 'ml-3'}>
             {item.name}
           </span>
+          {badge}
         </Link>
       );
     }
@@ -149,6 +185,7 @@ const BookSidebar = ({ openaddpage }) => {
         className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-16 border-r transition-colors duration-200 shadow-lg"
       >
         {/* Navigation Items */}
+
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
           {navItems.map((item) => renderNavItem(item))}
         </nav>
@@ -163,7 +200,11 @@ const BookSidebar = ({ openaddpage }) => {
         className="fixed bottom-0 left-0 right-0 z-40 border-t md:hidden transition-colors duration-200"
       >
         <div className="grid grid-cols-5 h-16">
-          {navItems.slice(0, 5).map((item) => renderNavItem(item, true))}
+          {/* We'll show only 5 items in mobile nav */}
+          {navItems
+            .filter((_, index) => index !== 2)
+            .slice(0, 5)
+            .map((item) => renderNavItem(item, true))}
         </div>
       </div>
 
@@ -203,6 +244,11 @@ const BookSidebar = ({ openaddpage }) => {
             {navItems.map((item) => {
               const active = isActive(item.path);
               const Icon = active ? item.activeIcon : item.icon;
+              const badge = item.badge ? (
+                <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {item.badge > 9 ? '9+' : item.badge}
+                </span>
+              ) : null;
 
               if (item.isCustomAction) {
                 return (
@@ -210,7 +256,9 @@ const BookSidebar = ({ openaddpage }) => {
                     key={item.name}
                     onClick={() => {
                       item.action();
-                      toggleMobileMenu();
+                      if (item.name !== 'Notifications') {
+                        toggleMobileMenu();
+                      }
                     }}
                     style={{
                       backgroundColor: active
@@ -231,6 +279,7 @@ const BookSidebar = ({ openaddpage }) => {
                       className="h-6 w-6"
                     />
                     <span className="ml-3">{item.name}</span>
+                    {badge}
                   </button>
                 );
               } else {
@@ -258,6 +307,7 @@ const BookSidebar = ({ openaddpage }) => {
                       className="h-6 w-6"
                     />
                     <span className="ml-3">{item.name}</span>
+                    {badge}
                   </Link>
                 );
               }

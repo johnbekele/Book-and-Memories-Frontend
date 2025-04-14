@@ -17,7 +17,7 @@ import {
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const UserNavBar = ({ fromwhere }) => {
+const UserNavBar = ({ fromwhere, onNotification }) => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const logger = useLogger();
@@ -49,7 +49,7 @@ const UserNavBar = ({ fromwhere }) => {
       <div className="navbar-container">
         {/* Logo at the left edge */}
         <div className="logo-section">
-          <Link to="/" className="logo-link">
+          <Link to="/user-dashboard" className="logo-link">
             <BookOpenIcon className="logo-icon" />
             <span className="logo-text">BookMeMo</span>
           </Link>

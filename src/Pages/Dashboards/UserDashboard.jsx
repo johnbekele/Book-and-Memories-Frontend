@@ -5,6 +5,8 @@ import FeedPage from '../UserPages/FeedPage';
 import BookSidebar from '../../Components/BookSidebar';
 import { useTheme } from '../../Context/ThemeContext';
 import { useLogger } from '../../Hook/useLogger.js';
+import NotificationModal from '../../Components/NotificationModal';
+import { useNotification } from '../../Hook/useNotification.js';
 
 const AddBookPage = lazy(() => import('../UserPages/AddBookPage'));
 
@@ -12,21 +14,41 @@ function UserDashboard() {
   const logger = useLogger();
   const { darkMode } = useTheme();
   const [addBookPage, setAddBookPage] = useState(false);
+  const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
+  const { notifications, isLoading, isError } = useNotification();
+
+  console.log('fetched notifications:', notifications);
 
   const handleaddBookPage = () => {
     logger.log('Add Book Page initialized');
     setAddBookPage(!addBookPage);
   };
 
+  const handleNotificationModal = () => {
+    setNotificationModalOpen(!isNotificationModalOpen);
+  };
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-base-300' : 'bg-base-100'}`}>
-      <UserNavBar fromwhere="user" />
+      <UserNavBar fromwhere="user" onNotification={handleNotificationModal} />
       {/* Add padding-top to account for fixed navbar */}
       <div className="pt-16">
         {' '}
         {/* Adjust this value based on your navbar height */}
         <div className="flex flex-col md:flex-row">
-          <BookSidebar openaddpage={handleaddBookPage} />
+          {isNotificationModalOpen ? (
+            <NotificationModal
+              notifications={notifications}
+              isError={isError}
+              isLoading={isLoading}
+              onClose={handleNotificationModal}
+            />
+          ) : (
+            <BookSidebar
+              openaddpage={handleaddBookPage}
+              onNotification={handleNotificationModal}
+            />
+          )}
+
           <main
             className={`flex-1 p-4 ${
               darkMode ? 'text-gray-200' : 'text-gray-800'
