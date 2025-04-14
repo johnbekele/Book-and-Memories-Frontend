@@ -19,7 +19,7 @@ const LoginPage = () => {
     return <div>Authentication error. Please refresh the page.</div>;
   }
 
-  const { login, googleLogin } = context;
+  const { login, googleLogin, loading } = context;
 
   const [formData, setFormData] = useState({
     identifier: '',
@@ -105,6 +105,7 @@ const LoginPage = () => {
             handleSubmit={handleSubmit}
             handleGoogleLogin={handleGoogleLogin}
             errors={errors}
+            isLoading={loading}
           />
         </div>
       </div>
