@@ -11,13 +11,14 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const logger = useLogger();
 
-  // Define logout function first to avoid circular dependency
   const logout = useCallback(() => {
+    setLoading(true);
+    logger.log('Logging out user');
     localStorage.removeItem('token');
     setUser(null);
+    setLoading(false);
     navigate('/login');
   }, [navigate]);
-
   // Function to fetch user data
   const fetchUser = useCallback(
     async (token) => {
@@ -161,7 +162,7 @@ const AuthProvider = ({ children }) => {
         logger.log('Dashboard role:', data.user.role);
 
         // Redirect to dashboard
-        navigate(getDashboardRoute(data.user.role));
+        navigate('/auth-success');
         setLoading(false);
         return true;
       } else {
@@ -184,6 +185,21 @@ const AuthProvider = ({ children }) => {
     logger.log('Initiating Google login');
     window.location.href = `${API_URL}/auth/google`;
   };
+
+  // // Route Dashboard according to roles
+  // const getDashboardRoute = (role) => {
+  //   if (!role) return '/';
+
+  //   if (role.Admin && role.Admin >= 4001) {
+  //     return '/user-dashboard';
+  //   } else if (role.Moderator && role.Moderator >= 3001) {
+  //     return '/user-dashboard';
+  //   } else if (role.User && role.User >= 2001) {
+  //     return '/user-dashboard';
+  //   } else {
+  //     return '/';
+  //   }
+  // };
 
   const contextValue = {
     user,
