@@ -185,21 +185,6 @@ const AuthProvider = ({ children }) => {
     window.location.href = `${API_URL}/auth/google`;
   };
 
-  // Route Dashboard according to roles
-  const getDashboardRoute = (role) => {
-    if (!role) return '/';
-
-    if (role.Admin && role.Admin >= 4001) {
-      return '/user-dashboard';
-    } else if (role.Moderator && role.Moderator >= 3001) {
-      return '/user-dashboard';
-    } else if (role.User && role.User >= 2001) {
-      return '/user-dashboard';
-    } else {
-      return '/';
-    }
-  };
-
   const contextValue = {
     user,
     loading,
