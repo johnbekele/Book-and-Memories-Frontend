@@ -7,6 +7,8 @@ import { useTheme } from '../../Context/ThemeContext';
 import { useLogger } from '../../Hook/useLogger.js';
 import NotificationModal from '../../Components/NotificationModal';
 import { useNotification } from '../../Hook/useNotification.js';
+import ProfilePage from '../../Components/ProfilePage.jsx';
+import { useUser } from '../../Hook/useUser.js';
 
 const AddBookPage = lazy(() => import('../UserPages/AddBookPage'));
 
@@ -16,8 +18,8 @@ function UserDashboard() {
   const [addBookPage, setAddBookPage] = useState(false);
   const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
   const { notifications, isLoading, isError } = useNotification();
-
-  console.log('fetched notifications:', notifications);
+  const [isProfieleModalOpen, setProfileModalOpen] = useState(false);
+  const { user, isLoading: userLoading, isError: userError } = useUser();
 
   const handleaddBookPage = () => {
     logger.log('Add Book Page initialized');
@@ -27,9 +29,29 @@ function UserDashboard() {
   const handleNotificationModal = () => {
     setNotificationModalOpen(!isNotificationModalOpen);
   };
+
+  const resetToHome = () => {
+    console.log('clicke');
+    setProfileModalOpen(!isProfieleModalOpen);
+  };
+
+  const handleUpdateUser = (updatedUserData) => {
+    console.log('Updating user data:', updatedUserData);
+    // Implement the logic to update the user data
+    // This might involve calling an API or updating context state
+  };
+
+  const handleProfileModal = () => {
+    console.log('Profile Modal initialized');
+    setProfileModalOpen(!isProfieleModalOpen);
+  };
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-base-300' : 'bg-base-100'}`}>
-      <UserNavBar fromwhere="user" onNotification={handleNotificationModal} />
+      <UserNavBar
+        fromwhere="user"
+        onNotification={handleNotificationModal}
+        onProfile={handleProfileModal}
+      />
       {/* Add padding-top to account for fixed navbar */}
       <div className="pt-16">
         {' '}
@@ -46,6 +68,7 @@ function UserDashboard() {
             <BookSidebar
               openaddpage={handleaddBookPage}
               onNotification={handleNotificationModal}
+              onReset={resetToHome}
             />
           )}
 
@@ -55,12 +78,15 @@ function UserDashboard() {
             }`}
           >
             {' '}
-            {addBookPage && (
+            {addBookPage ? (
               <Suspense fallback={<div>Loading...</div>}>
                 <AddBookPage openaddpage={handleaddBookPage} />
               </Suspense>
+            ) : isProfieleModalOpen ? (
+              <ProfilePage />
+            ) : (
+              <FeedPage />
             )}
-            <FeedPage />
           </main>
         </div>
       </div>

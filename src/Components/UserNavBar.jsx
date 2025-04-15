@@ -17,7 +17,7 @@ import {
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const UserNavBar = ({ fromwhere, onNotification }) => {
+const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const logger = useLogger();
@@ -28,7 +28,10 @@ const UserNavBar = ({ fromwhere, onNotification }) => {
   const dropdownRef = useRef(null);
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-  const closeDropdown = () => setDropdownOpen(false);
+  const closeDropdown = () => {
+    setDropdownOpen(false);
+    onProfile();
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {

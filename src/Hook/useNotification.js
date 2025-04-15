@@ -9,7 +9,7 @@ const fetchNotifications = async () => {
   const response = await axios.get(`${API_URL}/notifications/user`, {
     headers: { Authorization: `Bearer ${getToken()}` },
   });
-  console.log('Fetched notifications from useQuery:', response.data);
+
   return response.data;
 };
 
@@ -22,8 +22,6 @@ export function useNotification() {
     refetchOnWindowFocus: false,
     refetchInterval: 10000,
   });
-
-  console.log('Notifications query:', notificationsQuery.data);
 
   return {
     notifications: notificationsQuery.data || [],

@@ -30,7 +30,7 @@ import {
 
 import { format } from 'date-fns';
 
-const BookSidebar = ({ openaddpage, onNotification }) => {
+const BookSidebar = ({ openaddpage, onNotification, onReset }) => {
   // Use the new theme context
   const { theme, colors, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -51,10 +51,11 @@ const BookSidebar = ({ openaddpage, onNotification }) => {
   const navItems = [
     {
       name: 'Home',
-      path: '#',
+      path: '#home',
       icon: HomeIcon,
       activeIcon: HomeSolid,
-      isCustomAction: false,
+      action: onReset,
+      isCustomAction: true,
     },
     {
       name: 'Explore',

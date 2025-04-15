@@ -179,13 +179,13 @@ const BookFormOverlay = ({ onClose }) => {
       <div className="flex items-center justify-center min-h-screen">
         {/* Transparent backdrop */}
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-transparent bg-opacity-60  transition-opacity"
           onClick={onClose}
         ></div>
 
         {/* Modal content */}
         <div
-          className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+          className="relative bg-transparent  rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
           style={{
             backgroundColor: isDark
               ? colors.backgroundColor || '#1f2937'
