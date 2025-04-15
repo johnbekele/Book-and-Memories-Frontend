@@ -24,6 +24,10 @@ const BookPostCard = ({
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isHovering, setIsHovering] = useState(null);
 
+  // Animation states
+  const [showHeartAnimation, setShowHeartAnimation] = useState(false);
+  const [doubleClickLike, setDoubleClickLike] = useState(false);
+
   // Use optimistic state instead of props directly
   const isLiked = optimisticLikes.includes(currentUser?.id) || false;
   const likesCount = optimisticLikes.length || 0;
@@ -72,6 +76,12 @@ const BookPostCard = ({
 
       setOptimisticLikes(newLikes);
 
+      // Only show heart animation when liking (not unliking)
+      if (!isLiked) {
+        setShowHeartAnimation(true);
+        setTimeout(() => setShowHeartAnimation(false), 1000);
+      }
+
       // Make the actual API call
       await onLike(post._id, isLiked);
     } catch (error) {
@@ -80,6 +90,17 @@ const BookPostCard = ({
       setOptimisticLikes(post.likes || []);
     } finally {
       setIsLikeLoading(false);
+    }
+  };
+
+  // Handle double click on image to like
+  const handleDoubleClick = async () => {
+    // Only like if not already liked
+    if (!isLiked && !isLikeLoading) {
+      setDoubleClickLike(true);
+      setTimeout(() => setDoubleClickLike(false), 1000);
+
+      await handleLike();
     }
   };
 
@@ -147,7 +168,7 @@ const BookPostCard = ({
       {/* Main Content - Side by Side */}
       <div className="flex flex-col md:flex-row">
         {/* Book Cover Image - Smaller */}
-        <div className="md:w-1/2 relative">
+        <div className="md:w-1/2 relative" onDoubleClick={handleDoubleClick}>
           <div className="pb-[100%] md:pb-0 md:h-full">
             <img
               src={bookCover}
@@ -159,6 +180,19 @@ const BookPostCard = ({
                   'https://dummyimage.com/200x300/e0e0e0/ffffff&text=No+Cover';
               }}
             />
+
+            {/* Heart animation overlay */}
+            {(showHeartAnimation || doubleClickLike) && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <HeartSolid
+                  className="h-24 w-24 text-white animate-heart-burst"
+                  style={{
+                    filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.5))',
+                    animation: 'scale-in-out 1s ease-in-out',
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -169,7 +203,7 @@ const BookPostCard = ({
             <div className="flex items-center">
               <button
                 onClick={handleLike}
-                className="mr-3 focus:outline-none"
+                className="mr-3 focus:outline-none transform active:scale-125 transition-transform"
                 aria-label={isLiked ? 'Unlike' : 'Like'}
                 disabled={isLikeLoading}
               >
