@@ -5,7 +5,7 @@ import { API_URL } from '../Config/EnvConfig';
 import { useLogger } from '../Hook/useLogger';
 
 const AuthProvider = ({ children }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const navigate = useNavigate();
