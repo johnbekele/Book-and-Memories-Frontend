@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContext';
 import { API_URL } from '../Config/EnvConfig';
 import { useLogger } from '../Hook/useLogger';
+import { getTokenExpirationTime } from '../Config/jwtUtils.js';
 
 const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
@@ -19,11 +20,15 @@ const AuthProvider = ({ children }) => {
     setLoading(false);
     navigate('/login');
   }, [navigate]);
+
   // Function to fetch user data
   const fetchUser = useCallback(
     async (token) => {
       try {
         setLoading(true);
+        const timeleft = await getTokenExpirationTime(token);
+        typeof timeleft;
+        console.log('time left', timeleft);
 
         // Debug token
         // logger.log('Token being used:', token);
@@ -37,7 +42,7 @@ const AuthProvider = ({ children }) => {
         }
 
         const authHeader = `Bearer ${token}`;
-        // logger.log('Authorization header:', authHeader);
+        logger.log('Authorization header:', authHeader);
 
         // Make the actual fetch request
         const response = await fetch(`${API_URL}/auth/profile`, {
@@ -55,10 +60,13 @@ const AuthProvider = ({ children }) => {
         }
 
         const data = await response.json();
-        logger.log('User data fetched:', data);
+        // logger.log('User data fetched:', data);
 
         // Update user state
         setUser(data);
+        if (window.location.pathname !== '/auth-success') {
+          navigate('/auth-success');
+        }
         setLoading(false);
         return true;
       } catch (error) {
@@ -78,6 +86,7 @@ const AuthProvider = ({ children }) => {
 
   // Check for Google OAuth redirect
   useEffect(() => {
+    if (initialized) return;
     const checkForGoogleRedirect = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const token = urlParams.get('token');
@@ -116,7 +125,6 @@ const AuthProvider = ({ children }) => {
       alert(
         'First-time login may take 5-10 seconds due to API initialization. Thank you for your patience.'
       );
-      logger.log('Attempting login with:', loginData);
 
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
@@ -131,7 +139,6 @@ const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         const token = data.accessToken || data.token || data.jwt;
-        logger.log('Token extracted from response:', token);
 
         if (!token) {
           logger.error('No token received in login response');

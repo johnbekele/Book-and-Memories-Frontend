@@ -9,12 +9,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   const location = useLocation();
   const logger = useLogger();
 
-  useEffect(() => {
-    logger.log('ProtectedRoute rendered for path:', location.pathname);
-    logger.log('Required role:', requiredRole);
-    logger.log('Current user:', user);
-    logger.log('User roles:', user?.role);
-  }, [location.pathname, requiredRole, user]);
+  useEffect(() => {}, [location.pathname, requiredRole, user]);
 
   // Wait for auth initialization to complete
   if (loading || !initialized) {
@@ -29,10 +24,10 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }
 
   // Debug logging
-  logger.log(`Checking if user has role: ${requiredRole}`);
-  logger.log(`User has Admin role: ${user.role?.Admin === 4001}`);
-  logger.log(`User has Moderator role: ${user.role?.Moderator === 3001}`);
-  logger.log(`User has User role: ${user.role?.User === 2001}`);
+  // logger.log(`Checking if user has role: ${requiredRole}`);
+  // logger.log(`User has Admin role: ${user.role?.Admin === 4001}`);
+  // logger.log(`User has Moderator role: ${user.role?.Moderator === 3001}`);
+  // logger.log(`User has User role: ${user.role?.User === 2001}`);
 
   // Simplified role check with proper hierarchy - adjusted for your actual role levels
   let hasAccess = false;
