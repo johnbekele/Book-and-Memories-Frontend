@@ -8,6 +8,7 @@ import { HeartIcon as HeartSolid } from '@heroicons/react/24/solid';
 import Avatar from './Avatar';
 import { useTheme } from '../Context/ThemeContext';
 import logger from '../utils/logger';
+import DeleteModal from '../Components/DeleteModal';
 
 const BookPostCard = ({
   post,
@@ -313,19 +314,11 @@ const BookPostCard = ({
 
                         {/* delete will be shown only for comment owners  */}
                         {user.id === comment.user && (
-                          <span
-                            style={{
-                              color: isDark ? '#a0aec0' : '#718096',
-                              display:
-                                isHovering === comment._id ? 'block' : 'none',
-                            }}
-                            className="text-xs cursor-default hover:underline hover:text-amber-50 
-    active:text-white transition-colors 
-    active:drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]"
-                            onClick={() => onDelete(comment._id)}
-                          >
-                            delete
-                          </span>
+                          <DeleteModal
+                            isHovering={isHovering}
+                            commentID={comment._id}
+                            deletePost={() => onDelete(comment._id)}
+                          />
                         )}
 
                         <span
