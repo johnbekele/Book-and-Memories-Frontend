@@ -5,9 +5,7 @@ import TabMenu from '../../Components/TabMenu';
 
 //React.lazy load
 const UserNavbar = lazy(() => import('../../Components/UserNavBar'));
-const FlaggedUserPage = lazy(() =>
-  import('../ModeratorePages/FlaggedUserPage')
-);
+const FlaggedUserPage = lazy(() => import('../AdminPages/UserManagementPage'));
 const ActionAnalysis = lazy(() =>
   import('../ModeratorePages/ActionAnalysisPage')
 );

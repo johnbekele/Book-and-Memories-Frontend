@@ -6,7 +6,7 @@ import { API_URL } from '../Config/EnvConfig';
 const getToken = () => localStorage.getItem('token');
 
 const fetchUserInfo = async () => {
-  const response = await axios.get(`${API_URL}/books`, {
+  const response = await axios.get(`${API_URL}/auth/users`, {
     headers: { Authorization: `Bearer ${getToken()}` },
   });
   return response.data;

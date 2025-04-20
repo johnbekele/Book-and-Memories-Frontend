@@ -9,6 +9,7 @@ import Avatar from './Avatar';
 import { useTheme } from '../Context/ThemeContext';
 import logger from '../utils/logger';
 import DeleteModal from '../Components/DeleteModal';
+import ReportModal from '../Components/ReportModal';
 
 const BookPostCard = ({
   post,
@@ -320,20 +321,13 @@ const BookPostCard = ({
                             deletePost={() => onDelete(comment._id)}
                           />
                         )}
-
-                        <span
-                          style={{
-                            color: isDark ? '#a0aec0' : '#718096',
-                            display:
-                              isHovering === comment._id ? 'block' : 'none',
-                          }}
-                          className="text-xs cursor-default hover:underline hover:text-amber-50 
-    active:text-white transition-colors 
-    active:drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]"
-                          onClick={onReport}
-                        >
-                          report
-                        </span>
+                        {user.id !== comment.user && (
+                          <ReportModal
+                            isHovering={isHovering}
+                            commentID={comment._id}
+                            reportComment={() => onReport()}
+                          />
+                        )}
                       </div>
                     </div>
                   ))
