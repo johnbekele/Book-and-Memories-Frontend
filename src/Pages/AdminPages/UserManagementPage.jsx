@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use, useId } from 'react';
 import { useFlagged } from '../../Hook/useFlagged.js';
 import DataTable from '../../Components/DataTable.jsx';
 import { useMediaQuery } from '@mui/material';
@@ -9,7 +9,16 @@ import { useUser } from '../../Hook/useUser.js';
 
 function UserManagementPage() {
   const logger = useLogger();
-  const { user, escalate, isLoading, isError, error } = useUser();
+  const {
+    user,
+    escalate,
+    deleteUser,
+    freezUser,
+    restoreUser,
+    isLoading,
+    isError,
+    error,
+  } = useUser();
 
   const isMobile = useMediaQuery('(max-width:768px)'); // Detect mobile screens
   const options = [
@@ -21,7 +30,7 @@ function UserManagementPage() {
   const [status, setStatus] = useState({}); // State to manage status
 
   const handleDecision = (selectedOption, row) => {
-    let torole = {};
+    let torole = '';
 
     switch (selectedOption) {
       case 'escalateAdmin':
@@ -29,7 +38,7 @@ function UserManagementPage() {
         handleEscalateToAdmin(row._id, torole);
         break;
       case 'escalateModerator':
-        torole = 'moderatore';
+        torole = 'moderator';
         handleEscalateToModeratore(row._id, torole);
         break;
       case 'freezeAccount':
@@ -45,17 +54,46 @@ function UserManagementPage() {
   };
 
   const handleEscalateToAdmin = async (userId, torole) => {
-    logger.log('to admin clicked :', userId, torole);
+    try {
+      console.log('Trying escalate with', userId, torole);
+      escalate(
+        { userId, torole },
+        {
+          onError: (err) => {
+            console.error('Mutation error:', err);
+          },
+          onSuccess: (res) => {
+            console.log('Mutation success:', res);
+          },
+        }
+      );
+    } catch (err) {
+      console.error('Escalation threw:', err);
+    }
   };
+
   const handleEscalateToModeratore = async (userId, torole) => {
-    console.log('toamoderatore', userId, torole);
+    console.log('toamoderator', userId, torole);
+    escalate({ userId, torole });
   };
   const handleFreezAccount = async (userId) => {
-    logger.log('Confirmed:', userId);
+    freezUser(userId);
   };
 
   const handleDeleteAccount = async (userId) => {
-    console.log('delete clicked ');
+    try {
+      console.log('delting user ', userId);
+      deleteUser(userId, {
+        onError: (err) => {
+          console.error('Mutation error:', err);
+        },
+        onSuccess: (res) => {
+          console.log('Mutation success:', res);
+        },
+      });
+    } catch (err) {
+      console.error('Escalation threw:', err);
+    }
   };
 
   const handlerowSelectionChange = (selectedRows) => {

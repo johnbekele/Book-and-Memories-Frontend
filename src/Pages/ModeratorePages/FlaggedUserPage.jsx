@@ -17,7 +17,12 @@ function FlaggedUserPage() {
     error,
   } = useFlagged();
   const isMobile = useMediaQuery('(max-width:768px)'); // Detect mobile screens
-  const options = ['false_positive', 'confirmed', 'escalate'];
+  const options = [
+    { value: 'false_positive', label: 'False Positive' },
+    { value: 'confirmed', label: 'Confirmed' },
+
+    { value: 'escalate', label: 'Escalate' },
+  ];
   const [status, setStatus] = useState({}); // State to manage status
 
   const handleDecision = (selectedOption, row) => {

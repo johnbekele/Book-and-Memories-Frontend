@@ -7,11 +7,15 @@ import { useLogger } from '../Hook/useLogger.js';
 import AnimatedLottie from '../Components/AnimatedBook';
 
 const LoginPage = () => {
-  // Get context with error handling
   const context = useContext(AuthContext);
   const logger = useLogger();
+  const [formData, setFormData] = useState({
+    identifier: '',
+    password: '',
+    rememberMe: false,
+  });
+  const [errors, setErrors] = useState({});
 
-  // Safety check
   if (!context) {
     logger.error(
       'AuthContext is undefined. Check if AuthProvider is wrapping your app correctly.'
@@ -21,14 +25,6 @@ const LoginPage = () => {
 
   const { login, googleLogin, loading } = context;
 
-  const [formData, setFormData] = useState({
-    identifier: '',
-    password: '',
-    rememberMe: false,
-  });
-
-  const [errors, setErrors] = useState({});
-
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -36,7 +32,6 @@ const LoginPage = () => {
       [name]: type === 'checkbox' ? checked : value,
     });
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -48,13 +43,11 @@ const LoginPage = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Validate email
     const emailError = emailValidator(formData.identifier);
     if (emailError) {
       newErrors.identifier = emailError;
     }
 
-    // Validate password
     const passwordError = passwordValidator(formData.password);
     if (passwordError) {
       newErrors.password = passwordError;
@@ -70,20 +63,37 @@ const LoginPage = () => {
       identifier: formData.identifier,
       password: formData.password,
     };
-    if (validateForm(loginData)) {
+
+    if (validateForm()) {
       try {
         const success = await login(loginData);
-        if (!success) {
-          setErrors({
-            ...errors,
-            general: 'Login failed. Please check your credentials.',
-          });
+        if (!success.status) {
+          let customMessage = 'Login failed. Please check your credentials.';
+
+          if (success.message?.toLowerCase().includes('freezed')) {
+            customMessage = (
+              <span>
+                This account has been <strong>frozen</strong> by the admin.{' '}
+                <a href="/account-appeal" className="text-blue-600 underline">
+                  Click here to appeal
+                </a>
+                .
+              </span>
+            );
+          }
+
+          setErrors((prev) => ({
+            ...prev,
+            general: customMessage,
+          }));
+
+          console.log('Login response message:', success.message);
         }
       } catch (error) {
-        setErrors({
-          ...errors,
+        setErrors((prev) => ({
+          ...prev,
           general: error.message || 'Login failed. Please try again.',
-        });
+        }));
       }
     }
   };

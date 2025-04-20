@@ -102,16 +102,17 @@ const LoginForm = ({
                 onChange={handleChange}
               />
             </div>
-            {errors?.password && (
-              <motion.div
-                className="error"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {errors.password}
-              </motion.div>
-            )}
+            {errors?.password ||
+              (errors?.general && (
+                <motion.div
+                  className="error"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {errors.password || errors.general}
+                </motion.div>
+              ))}
           </div>
 
           <div className="flex-row">

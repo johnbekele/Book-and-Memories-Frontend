@@ -13,14 +13,36 @@ const fetchUserInfo = async () => {
   return response.data;
 };
 
-const escalateuser = async (userID, torole) => {
+const escalateuser = async ({ userId, torole }) => {
   const response = await axios.post(
-    `${API_URL}/auth/escalate/${useId}`,
+    `${API_URL}/auth/escalate/${userId}`,
     { torole },
     {
-      headers: { Authorization: `Bearer ${getToken}` },
+      headers: { Authorization: `Bearer ${getToken()}` },
     }
   );
+  console.log('Escalation response:', response.data);
+  return response.data;
+};
+
+const deletefn = async (userId) => {
+  const response = await axios.delete(`${API_URL}/auth/delete/${userId}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return response.data;
+};
+
+const freezuser = async (userId) => {
+  const response = await axios.put(`${API_URL}/auth/freez/access/${userId}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return response.data;
+};
+
+const restoreuser = async (userId) => {
+  const response = await axios.put(`${API_URL}/auth/restore/access/${userId}`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
   return response.data;
 };
 
@@ -34,7 +56,28 @@ export function useUser() {
   });
 
   const escalateMutation = useMutation({
-    queryFn: escalateuser,
+    mutationFn: escalateuser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userInfo'] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deletefn,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userInfo'] });
+    },
+  });
+
+  const freezMutation = useMutation({
+    mutationFn: freezuser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userInfo'] });
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: restoreuser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userInfo'] });
     },
@@ -44,6 +87,9 @@ export function useUser() {
   return {
     user: userInfoQuery.data || [],
     escalate: escalateMutation.mutate,
+    deleteUser: deleteMutation.mutate,
+    freezUser: freezMutation.mutate,
+    restoreUser: restoreMutation.mutate,
     isLoading: userInfoQuery.isLoading,
     isError: userInfoQuery.isError,
     error: userInfoQuery.error,

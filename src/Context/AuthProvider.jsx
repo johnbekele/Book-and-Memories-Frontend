@@ -181,9 +181,9 @@ const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'Login failed');
       }
     } catch (error) {
-      logger.error('Login failed:', error);
+      //logger.error('Login failed:', error);
       setLoading(false);
-      return false;
+      return false, error;
     }
   };
 
