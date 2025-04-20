@@ -9,16 +9,10 @@ import { useUser } from '../../Hook/useUser.js';
 
 function FlaggedUserPage() {
   const logger = useLogger();
-  const {
-    deleteFlaggedPost,
-    repostFlaggedPostMutation,
-    flagged,
-    isLoading,
-    isError,
-    error,
-  } = useFlagged();
+  const { user, isLoading, isError, error } = useUser();
+
   const isMobile = useMediaQuery('(max-width:768px)'); // Detect mobile screens
-  const options = ['false_positive', 'confirmed', 'escalate'];
+  const options = ['escalate to Admin', 'escalate to Moderatore', 'Freez'];
   const [status, setStatus] = useState({}); // State to manage status
 
   const handleDecision = (selectedOption, row) => {
@@ -73,7 +67,7 @@ function FlaggedUserPage() {
     {
       field: 'user',
       headerName: 'User',
-      width: 150,
+      width: 100,
       renderCell: (params) => params.value,
     },
     {
@@ -86,11 +80,62 @@ function FlaggedUserPage() {
         </span>
       ),
     },
-    { field: 'comment', headerName: 'Comment', width: 250 },
-    { field: 'reason', headerName: 'Reason', width: 300 },
+    { field: 'email', headerName: 'Email', width: 200 },
+    {
+      field: 'role',
+      headerName: 'Role',
+      width: 250,
+      renderCell: (params) => (
+        <div className="flex flex-wrap gap-2">
+          {params?.row.role &&
+            Object.entries(params.row.role).map(([role, level]) => (
+              <span
+                key={role}
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  role === 'Admin'
+                    ? 'bg-red-100 text-red-800'
+                    : role === 'Moderator'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}
+              >
+                {role}
+              </span>
+            ))}
+        </div>
+      ),
+    },
+    {
+      field: 'flaggedComments',
+      headerName: 'Flagged Comments',
+      width: 100,
+      renderCell: (params) => {
+        console.log(params);
+        const amount = params.row.flaggedComments.amount;
+        if (amount >= 6) {
+          return (
+            <div className="flex flex-1 bg-red-200 text-red-600 font-bold">
+              {amount} 🚩
+            </div>
+          );
+        } else if (amount >= 3) {
+          return (
+            <div className="flex flex-1 bg-yellow-200 text-yellow-600">
+              {amount} ⚠️
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex flex-1 bg-green-200 text-green-500">
+              {amount}
+            </div>
+          );
+        }
+      },
+    },
     {
       field: 'date',
-      headerName: 'Date Flagged',
+      headerName: 'Created At',
       width: 180,
       renderCell: (params) => (
         <span>{new Date(params.row.date).toLocaleString()}</span>
@@ -123,24 +168,24 @@ function FlaggedUserPage() {
   ];
 
   // Transform flagged data to rows format
-  const rows = flagged
-    ? flagged.map((item) => ({
+  const rows = user
+    ? user.map((item) => ({
         id: item._id,
         user: (
           <Avatar
-            src={item.userData?.profilePicture}
-            alt={item.userData?.firstname || 'User'}
+            src={item.photo}
+            alt={item.firstname || 'User'}
             className="h-8 w-8 rounded-full"
           />
         ),
-        firstName: item.userData?.firstname || '',
-        lastName: item.userData?.lastname || '',
+        firstName: item.firstname || '',
+        lastName: item.lastname || '',
         comment: item.comment,
-        reason: item.reason,
-        date: item.created_at,
-        postId: item.postid,
+        role: item.role,
+        date: item.createdAt,
+        flaggedComments: item.flaggedComments,
         userId: item.userId,
-        email: item.userData?.email || '',
+        email: item.email || '',
         decision: (
           <SplitButton
             options={options}
@@ -175,7 +220,7 @@ function FlaggedUserPage() {
             {error?.message || 'Failed to load flagged users'}
           </span>
         </div>
-      ) : flagged && flagged.length > 0 ? (
+      ) : user && user.length > 0 ? (
         <div className="bg-white rounded-lg shadow p-4">
           <div className="w-full overflow-auto">
             <DataTable
@@ -204,10 +249,10 @@ function FlaggedUserPage() {
             />
           </svg>
           <h3 className="mt-2 text-xs md:text-sm font-medium text-gray-900">
-            No flagged users
+            No user users
           </h3>
           <p className="mt-1 text-xs md:text-sm text-gray-500">
-            There are currently no flagged users in the system.
+            There are currently no user users in the system.
           </p>
         </div>
       )}

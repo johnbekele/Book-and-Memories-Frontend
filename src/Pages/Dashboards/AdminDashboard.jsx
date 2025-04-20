@@ -5,7 +5,9 @@ import TabMenu from '../../Components/TabMenu';
 
 //React.lazy load
 const UserNavbar = lazy(() => import('../../Components/UserNavBar'));
-const FlaggedUserPage = lazy(() => import('../AdminPages/UserManagementPage'));
+const UserManagementPage = lazy(() =>
+  import('../AdminPages/UserManagementPage')
+);
 const ActionAnalysis = lazy(() =>
   import('../ModeratorePages/ActionAnalysisPage')
 );
@@ -22,7 +24,7 @@ function ModeratorDashboard() {
           tab1Label="Flagged Users"
           tab2Label="Reported Interactions"
           tab3Label="Action Analysis"
-          Tab1Component={<FlaggedUserPage />}
+          Tab1Component={<UserManagementPage />}
           Tab2Component={<ReportedInteraction />}
           Tab3Component={<ActionAnalysis />}
         />
