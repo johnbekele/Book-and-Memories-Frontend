@@ -7,24 +7,36 @@ import SplitButton from '../../Components/SplitButton.jsx';
 import { useLogger } from '../../Hook/useLogger.js';
 import { useUser } from '../../Hook/useUser.js';
 
-function FlaggedUserPage() {
+function UserManagementPage() {
   const logger = useLogger();
-  const { user, isLoading, isError, error } = useUser();
+  const { user, escalate, isLoading, isError, error } = useUser();
 
   const isMobile = useMediaQuery('(max-width:768px)'); // Detect mobile screens
-  const options = ['escalate to Admin', 'escalate to Moderatore', 'Freez'];
+  const options = [
+    { value: 'escalateAdmin', label: 'Escalate to Admin' },
+    { value: 'escalateModerator', label: 'Escalate to Moderator' },
+    { value: 'freezeAccount', label: 'Freeze User Account' },
+    { value: 'deleteAccount', label: 'Delete Account' },
+  ];
   const [status, setStatus] = useState({}); // State to manage status
 
   const handleDecision = (selectedOption, row) => {
+    let torole = {};
+
     switch (selectedOption) {
-      case 'false_positive':
-        handleFalsePositive(row._id);
+      case 'escalateAdmin':
+        torole = 'admin';
+        handleEscalateToAdmin(row._id, torole);
         break;
-      case 'confirmed':
-        handleConfirmed(row._id);
+      case 'escalateModerator':
+        torole = 'moderatore';
+        handleEscalateToModeratore(row._id, torole);
         break;
-      case 'escalate':
-        handleEscalation(row._id);
+      case 'freezeAccount':
+        handleFreezAccount(row._id);
+        break;
+      case 'deleteAccount':
+        handleDeleteAccount(row._id);
         break;
       default:
         logger.log('Invalid option selected');
@@ -32,29 +44,18 @@ function FlaggedUserPage() {
     }
   };
 
-  const handleConfirmed = async (postId) => {
-    logger.log('Confirmed:', postId);
-    try {
-      const response = await deleteFlaggedPost(postId);
-      logger.log('Response:', response);
-      // Optionally, you can trigger a refetch or update the UI here
-    } catch (error) {
-      logger.error('Error deleting flagged post:', error);
-    }
+  const handleEscalateToAdmin = async (userId, torole) => {
+    logger.log('to admin clicked :', userId, torole);
   };
-  const handleFalsePositive = async (postId, disableBtn) => {
-    try {
-      const response = await repostFlaggedPostMutation(postId);
-      setStatus((prev) => ({ ...prev, [postId]: 'false_positive' }));
-      disableBtn();
+  const handleEscalateToModeratore = async (userId, torole) => {
+    console.log('toamoderatore', userId, torole);
+  };
+  const handleFreezAccount = async (userId) => {
+    logger.log('Confirmed:', userId);
+  };
 
-      logger.log('Response:', response);
-    } catch (error) {
-      logger.error('Error reposting flagged post:', error);
-    }
-  };
-  const handleEscalation = async (postId) => {
-    logger.log('Confirmed:', postId);
+  const handleDeleteAccount = async (userId) => {
+    console.log('delete clicked ');
   };
 
   const handlerowSelectionChange = (selectedRows) => {
@@ -259,4 +260,4 @@ function FlaggedUserPage() {
   );
 }
 
-export default FlaggedUserPage;
+export default UserManagementPage;
