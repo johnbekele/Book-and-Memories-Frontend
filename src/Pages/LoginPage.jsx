@@ -63,7 +63,8 @@ const LoginPage = () => {
       identifier: formData.identifier,
       password: formData.password,
     };
-
+    const errorParam = new URLSearchParams(window.location.search).get('error');
+    console.log(errorParam);
     if (validateForm()) {
       try {
         const success = await login(loginData);
