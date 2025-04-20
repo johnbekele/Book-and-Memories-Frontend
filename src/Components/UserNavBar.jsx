@@ -182,7 +182,8 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                       >
                         <Link
                           className="menu-item"
-                          to="/user-dashboard"
+                          to="/auth-success"
+                          state={{ redirectTo: '/user-dashboard' }}
                           onClick={closeDropdown}
                         >
                           <div className="menu-item-content">
@@ -204,7 +205,8 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                       >
                         <Link
                           className="menu-item"
-                          to="/admin-dashboard"
+                          to="/auth-success"
+                          state={{ redirectTo: '/admin-dashboard' }}
                           onClick={closeDropdown}
                         >
                           <div className="menu-item-content">
@@ -227,7 +229,8 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                       >
                         <Link
                           className="menu-item"
-                          to="/moderator-dashboard"
+                          to="/auth-success"
+                          state={{ redirectTo: '/moderator-dashboard' }}
                           onClick={closeDropdown}
                         >
                           <div className="menu-item-content">

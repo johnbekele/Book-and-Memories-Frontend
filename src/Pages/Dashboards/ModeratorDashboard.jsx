@@ -21,12 +21,14 @@ function ModeratorDashboard() {
       <Suspense fallback={<div>Loading...</div>}>
         <UserNavbar fromwhere="moderator" />
         <TabMenu
-          tab1Label="Flagged Users"
-          tab2Label="Reported Interactions"
-          tab3Label="Action Analysis"
-          Tab1Component={<FlaggedUserPage />}
-          Tab2Component={<ReportedInteraction />}
-          Tab3Component={<ActionAnalysis />}
+          tabs={[
+            { label: 'Flagged Users', component: <FlaggedUserPage /> },
+            {
+              label: 'Reported Interaction',
+              component: <ReportedInteraction />,
+            },
+            { label: 'Action Analysis ', component: <ActionAnalysis /> },
+          ]}
         />
       </Suspense>
     </div>

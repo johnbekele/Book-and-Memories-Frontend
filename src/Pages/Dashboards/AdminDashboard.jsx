@@ -15,18 +15,22 @@ const ReportedInteraction = lazy(() =>
   import('../ModeratorePages/ReportedInteractionPage')
 );
 
+const FlaggedUserPage = lazy(() =>
+  import('../ModeratorePages/FlaggedUserPage')
+);
+
 function ModeratorDashboard() {
   return (
     <div>
       <Suspense fallback={<div>Loading...</div>}>
-        <UserNavbar fromwhere="moderator" />
+        <UserNavbar fromwhere="admin" />
         <TabMenu
-          tab1Label="Flagged Users"
-          tab2Label="Reported Interactions"
-          tab3Label="Action Analysis"
-          Tab1Component={<UserManagementPage />}
-          Tab2Component={<ReportedInteraction />}
-          Tab3Component={<ActionAnalysis />}
+          tabs={[
+            { label: 'User Management', component: <UserManagementPage /> },
+            { label: 'Flagged Users', component: <FlaggedUserPage /> },
+            { label: 'Ticket Management', component: <ReportedInteraction /> },
+            { label: 'Action Analysis ', component: <ActionAnalysis /> },
+          ]}
         />
       </Suspense>
     </div>

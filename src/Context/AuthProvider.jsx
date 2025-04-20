@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { redirect, useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContext';
 import { API_URL } from '../Config/EnvConfig';
 import { useLogger } from '../Hook/useLogger';
@@ -65,7 +65,9 @@ const AuthProvider = ({ children }) => {
         // Update user state
         setUser(data);
         if (window.location.pathname !== '/auth-success') {
-          navigate('/auth-success');
+          navigate('/auth-success', {
+            state: { redirectTo: '/user-dashboard' },
+          });
         }
         setLoading(false);
         return true;
@@ -169,7 +171,9 @@ const AuthProvider = ({ children }) => {
         logger.log('Dashboard role:', data.user.role);
 
         // Redirect to dashboard
-        navigate('/auth-success');
+        navigate('/auth-success', {
+          state: { redirectTo: '/user-dashboard' },
+        });
         setLoading(false);
         return true;
       } else {

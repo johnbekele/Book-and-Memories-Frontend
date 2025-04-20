@@ -104,7 +104,7 @@ function CustomTabPanel(props) {
   );
 }
 
-export default function TabMenu(props) {
+export default function TabMenu({ tabs = [] }) {
   const [value, setValue] = React.useState(0);
   const { theme, colors } = useTheme();
 
@@ -125,20 +125,16 @@ export default function TabMenu(props) {
             scrollButtons="auto"
             allowScrollButtonsMobile
           >
-            <Tab label={props.tab1Label || 'Tab 1'} />
-            <Tab label={props.tab2Label || 'Tab 2'} />
-            <Tab label={props.tab3Label || 'Tab 3'} />
+            {tabs.map((tab, index) => (
+              <Tab key={index} label={tab.label || `Tab ${index + 1}`} />
+            ))}
           </StyledTabs>
         </Box>
-        <CustomTabPanel value={value} index={0}>
-          {props.Tab1Component || 'Content 1'}
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          {props.Tab2Component || 'Content 2'}
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          {props.Tab3Component || 'Content 3'}
-        </CustomTabPanel>
+        {tabs.map((tab, index) => (
+          <CustomTabPanel key={index} value={value} index={index}>
+            {tab.component || `Content ${index + 1}`}
+          </CustomTabPanel>
+        ))}
       </StyledBox>
     </div>
   );

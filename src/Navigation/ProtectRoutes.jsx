@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../Components/LoadingSpinner';
 import AuthContext from '../Context/AuthContext';
@@ -9,51 +9,59 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   const location = useLocation();
   const logger = useLogger();
 
-  useEffect(() => {}, [location.pathname, requiredRole, user]);
+  const rolePriority = {
+    Admin: 3,
+    Moderator: 2,
+    User: 1,
+  };
 
-  // Wait for auth initialization to complete
+  const allowedRoleValues = {
+    Admin: 4001,
+    Moderator: 3001,
+    User: 2001,
+  };
+
   if (loading || !initialized) {
     logger.log('Auth is still loading or initializing...');
     return <LoadingSpinner />;
   }
 
-  // Handle unauthenticated state
-  if (!user) {
-    logger.log('No user found, redirecting to login');
-    return <Navigate to="/login" replace />;
+  if (!user || !user.role) {
+    logger.log('No user or role found, redirecting to login');
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Debug logging
-  // logger.log(`Checking if user has role: ${requiredRole}`);
-  // logger.log(`User has Admin role: ${user.role?.Admin === 4001}`);
-  // logger.log(`User has Moderator role: ${user.role?.Moderator === 3001}`);
-  // logger.log(`User has User role: ${user.role?.User === 2001}`);
+  // Extract valid roles the user has
+  const userRoles = Object.entries(user.role).filter(([_, value]) =>
+    Object.values(allowedRoleValues).includes(value)
+  );
 
-  // Simplified role check with proper hierarchy - adjusted for your actual role levels
+  // Sort by priority (descending)
+  userRoles.sort(([a], [b]) => rolePriority[b] - rolePriority[a]);
+
+  const roleKey = userRoles[0]?.[0]; // Highest role name
   let hasAccess = false;
 
-  if (user.role?.Admin === 4001) {
-    // Admin can access everything
-    logger.log('User is an Admin - granting access');
+  console.log('role key:', roleKey);
+
+  // Role-based access control
+  if (roleKey === 'Admin') {
     hasAccess = true;
-  } else if (user.role?.Moderator === 3001) {
-    // Moderator can access Moderator and User pages
-    if (requiredRole === 'Moderator' || requiredRole === 'User') {
+    logger.log('User is an Admin - granting access');
+  } else if (roleKey === 'Moderator') {
+    if (['Moderator', 'User'].includes(requiredRole)) {
+      hasAccess = true;
       logger.log('User is a Moderator - granting access');
-      hasAccess = true;
     }
-  } else if (user.role?.User === 2001) {
-    // User can only access User pages
+  } else if (roleKey === 'User') {
     if (requiredRole === 'User') {
-      logger.log('User is a regular User - granting access');
       hasAccess = true;
+      logger.log('User is a regular User - granting access');
     }
   }
 
   if (!hasAccess) {
     logger.log(`Access denied for ${requiredRole} page`);
-
-    // Access denied component with correct role level checks
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
         <div className="p-8 bg-white shadow-lg rounded-lg">
@@ -61,19 +69,10 @@ const ProtectedRoute = ({ children, requiredRole }) => {
             Access Denied
           </h1>
           <p className="mb-4">You don't have permission to access this page.</p>
-          <p className="mb-4">
-            Your current role:{' '}
-            {user.role?.Admin === 4001
-              ? 'Admin'
-              : user.role?.Moderator === 3001
-              ? 'Moderator'
-              : user.role?.User === 2001
-              ? 'User'
-              : 'Unknown'}
-          </p>
+          <p className="mb-4">Your current role: {roleKey ?? 'Unknown'}</p>
           <p className="mb-4">Required role: {requiredRole}</p>
           <div className="flex space-x-4">
-            {user.role?.Admin === 4001 && (
+            {roleKey === 'Admin' && (
               <button
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 onClick={() => (window.location.href = '/admin-dashboard')}
@@ -81,7 +80,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
                 Go to Admin Dashboard
               </button>
             )}
-            {user.role?.Moderator === 3001 && (
+            {roleKey === 'Moderator' && (
               <button
                 className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
                 onClick={() => (window.location.href = '/moderator-dashboard')}
@@ -89,7 +88,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
                 Go to Moderator Dashboard
               </button>
             )}
-            {user.role?.User === 2001 && (
+            {roleKey === 'User' && (
               <button
                 className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
                 onClick={() => (window.location.href = '/user-dashboard')}

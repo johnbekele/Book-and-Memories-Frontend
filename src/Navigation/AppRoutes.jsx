@@ -11,7 +11,7 @@ import LoadingSpinner from '../Components/LoadingSpinner';
 import SmallSpinner from '../Components/SmallSpinner';
 
 const LoginPage = lazy(() => import('../Pages/LoginPage'));
-const AuthSuccess = lazy(() => import('../Components/AuthSuccess'));
+const AuthSuccess = lazy(() => import('../Hook/AuthSuccess'));
 const UserDashboard = lazy(() => import('../Pages/Dashboards/UserDashboard'));
 const ModeratorDashboard = lazy(() =>
   import('../Pages/Dashboards/ModeratorDashboard')

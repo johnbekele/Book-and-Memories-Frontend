@@ -1,73 +1,43 @@
-// Components/AuthSuccess.jsx
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../Context/AuthContext';
-import styled from 'styled-components';
+import { useEffect, useContext } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import AuthContext from '../Context/AuthContext';
+import LoadingSpinner from '../Components/LoadingSpinner';
 
 const AuthSuccess = () => {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const location = useLocation(); // ✅ FIXED
+  const { user, loading } = useContext(AuthContext);
+
+  const redirectTo = location.state?.redirectTo || '/user-dashboard';
 
   useEffect(() => {
-    if (!loading) {
-      if (user) {
-        // Redirect to appropriate dashboard based on user role
-        if (user.role?.Admin >= 3001) {
-          navigate('/admin-dashboard');
-        } else if (user.role?.Moderator >= 4001) {
-          navigate('/moderator-dashboard');
-        } else if (user.role?.User >= 2001) {
-          navigate('/user-dashboard');
+    if (user && !loading) {
+      if (user.role) {
+        if (user.role.Admin >= 4001 && redirectTo === '/admin-dashboard') {
+          navigate('/admin-dashboard', { replace: true });
+        } else if (
+          user.role.Moderator >= 3001 &&
+          redirectTo === '/moderator-dashboard'
+        ) {
+          navigate('/moderator-dashboard', { replace: true });
+        } else if (user.role.User >= 2001 && redirectTo === '/user-dashboard') {
+          navigate('/user-dashboard', { replace: true });
         } else {
-          navigate('/');
+          navigate('/', { replace: true });
         }
       } else {
-        // If no user after loading, redirect to login
-        navigate('/login');
+        navigate('/user-dashboard', { replace: true });
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, redirectTo]);
 
   return (
-    <SuccessContainer>
+    <div className="auth-success-container">
       <h2>Authentication Successful</h2>
-      <p>Redirecting to your dashboard...</p>
-      <Spinner />
-    </SuccessContainer>
+      <p>Redirecting you to your dashboard...</p>
+      <LoadingSpinner />
+    </div>
   );
 };
-
-const SuccessContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #1f1f1f;
-  color: #f1f1f1;
-
-  h2 {
-    margin-bottom: 10px;
-  }
-
-  p {
-    margin-bottom: 20px;
-  }
-`;
-
-const Spinner = styled.div`
-  width: 30px;
-  height: 30px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  border-top-color: #2d79f3;
-  animation: spin 1s ease-in-out infinite;
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
 
 export default AuthSuccess;

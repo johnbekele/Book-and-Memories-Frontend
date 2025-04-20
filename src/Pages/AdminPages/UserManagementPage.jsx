@@ -110,7 +110,6 @@ function FlaggedUserPage() {
       headerName: 'Flagged Comments',
       width: 100,
       renderCell: (params) => {
-        console.log(params);
         const amount = params.row.flaggedComments.amount;
         if (amount >= 6) {
           return (
@@ -202,10 +201,10 @@ function FlaggedUserPage() {
     <div className="flex flex-col p-2 sm:p-4 md:p-6 w-full mt-10 md:mt-1">
       <div className="mb-4 md:mb-6">
         <h1 className="text-xl md:text-2xl font-bold text-gray-800">
-          Flagged Users
+          User Management
         </h1>
         <p className="text-sm md:text-base text-gray-600">
-          Review and manage users that have been flagged in the system
+          Review and manage users
         </p>
       </div>
 
