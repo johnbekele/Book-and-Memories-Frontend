@@ -25,6 +25,7 @@ function UserManagementPage() {
     { value: 'escalateAdmin', label: 'Escalate to Admin' },
     { value: 'escalateModerator', label: 'Escalate to Moderator' },
     { value: 'freezeAccount', label: 'Freeze User Account' },
+    { value: 'restoreAccess', label: 'Restore User Access' },
     { value: 'deleteAccount', label: 'Delete Account' },
   ];
   const [status, setStatus] = useState({}); // State to manage status
@@ -46,6 +47,9 @@ function UserManagementPage() {
         break;
       case 'deleteAccount':
         handleDeleteAccount(row._id);
+        break;
+      case 'restoreAccess':
+        handleRestorAccount(row._id);
         break;
       default:
         logger.log('Invalid option selected');
@@ -93,6 +97,15 @@ function UserManagementPage() {
       });
     } catch (err) {
       console.error('Escalation threw:', err);
+    }
+  };
+
+  const handleRestorAccount = async (userId) => {
+    try {
+      await restoreUser(userId);
+      console.log('user account restore successfully ');
+    } catch (err) {
+      console.log(err);
     }
   };
 

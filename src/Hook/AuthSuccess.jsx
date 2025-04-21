@@ -26,7 +26,7 @@ const AuthSuccess = () => {
           navigate('/', { replace: true });
         }
       } else {
-        navigate('/user-dashboard', { replace: true });
+        navigate('/login', { replace: true });
       }
     }
   }, [user, loading, navigate, redirectTo]);

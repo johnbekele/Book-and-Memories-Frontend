@@ -33,17 +33,29 @@ const deletefn = async (userId) => {
 };
 
 const freezuser = async (userId) => {
-  const response = await axios.put(`${API_URL}/auth/freez/access/${userId}`, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  });
+  const response = await axios.put(
+    `${API_URL}/auth/freez/access/${userId}`,
+    {},
+    {
+      headers: { Authorization: `Bearer ${getToken()}` },
+    }
+  );
   return response.data;
 };
 
 const restoreuser = async (userId) => {
-  const response = await axios.put(`${API_URL}/auth/restore/access/${userId}`, {
-    headers: { Authorization: `Bearer ${getToken()}` },
-  });
-  return response.data;
+  try {
+    const response = await axios.put(
+      `${API_URL}/auth/restore/access/${userId}`,
+      {},
+      {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      }
+    );
+    return response.data;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 // Custom hook for books
