@@ -202,10 +202,7 @@ const BookSidebar = ({ openaddpage, onNotification, onReset }) => {
       >
         <div className="grid grid-cols-5 h-16">
           {/* We'll show only 5 items in mobile nav */}
-          {navItems
-            .filter((_, index) => index !== 2)
-            .slice(0, 5)
-            .map((item) => renderNavItem(item, true))}
+          {navItems.slice(0, 5).map((item) => renderNavItem(item, true))}
         </div>
       </div>
 
@@ -225,6 +222,7 @@ const BookSidebar = ({ openaddpage, onNotification, onReset }) => {
                 style={{ color: colors.buttonText }}
                 className="h-8 w-8"
               />
+
               <span
                 style={{ color: colors.textColor }}
                 className="ml-2 text-xl font-bold"

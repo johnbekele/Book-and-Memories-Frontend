@@ -11,12 +11,13 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 export default function SplitButton({ options, handleDecision }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isdisable = options[selectedIndex] === 'false_positive';
 
-  const selectedOption = options[selectedIndex];
   const open = Boolean(anchorEl);
+  const selectedOption = options[selectedIndex];
 
   const handleClick = () => {
     handleDecision(selectedOption.value);
@@ -61,7 +62,7 @@ export default function SplitButton({ options, handleDecision }) {
             },
           }}
         >
-          {selectedOption.label}
+          {selectedOption.labele}
         </Button>
         <Button
           size="small"
@@ -93,7 +94,8 @@ export default function SplitButton({ options, handleDecision }) {
       >
         {options.map((option, index) => (
           <MenuItem
-            key={option.value}
+            key={option}
+            disabled={isdisable ? [1, 2, 3] : ''}
             selected={index === selectedIndex}
             onClick={() => handleMenuItemClick(index)}
             sx={{
@@ -101,7 +103,7 @@ export default function SplitButton({ options, handleDecision }) {
               fontSize: '0.875rem',
             }}
           >
-            {option.label}
+            {option.lable}
           </MenuItem>
         ))}
       </Menu>
