@@ -20,6 +20,8 @@ const BookPostCard = ({
   onDelete,
   onReport,
   user,
+  onFavorite,
+  isFavorite,
 }) => {
   // Optimistic UI state for likes
   const [optimisticLikes, setOptimisticLikes] = useState(post.likes || []);
@@ -81,7 +83,7 @@ const BookPostCard = ({
       // Only show heart animation when liking (not unliking)
       if (!isLiked) {
         setShowHeartAnimation(true);
-        setTimeout(() => setShowHeartAnimation(false), 1000);
+        setTimeout(() => setShowHeartAnimation(false), 900);
       }
 
       // Make the actual API call
@@ -228,11 +230,23 @@ const BookPostCard = ({
                   className="h-6 w-6"
                 />
               </button>
-              <button className="ml-auto focus:outline-none" aria-label="Save">
-                <BookmarkIcon
-                  style={{ color: colors.textColor }}
-                  className="h-6 w-6"
-                />
+              <button
+                onClick={() => onFavorite(post._id)}
+                className="ml-auto focus:outline-none"
+                aria-label="Save"
+              >
+                {' '}
+                {isFavorite ? (
+                  <BookmarkIcon
+                    style={{ color: colors.textColor, fill: colors.textColor }}
+                    className="h-6 w-6"
+                  />
+                ) : (
+                  <BookmarkIcon
+                    style={{ color: colors.textColor }}
+                    className="h-6 w-6"
+                  />
+                )}
               </button>
             </div>
 

@@ -9,6 +9,7 @@ import NotificationModal from '../../Components/NotificationModal';
 import { useNotification } from '../../Hook/useNotification.js';
 import ProfilePage from '../../Components/ProfilePage.jsx';
 import { useUser } from '../../Hook/useUser.js';
+import MyLibrary from '../../Components/MyLibrary.jsx';
 
 const AddBookPage = lazy(() => import('../UserPages/AddBookPage'));
 
@@ -20,6 +21,7 @@ function UserDashboard() {
   const { notifications, isLoading, isError } = useNotification();
   const [isProfieleModalOpen, setProfileModalOpen] = useState(false);
   const { user, isLoading: userLoading, isError: userError } = useUser();
+  const [ismylibrarypage, setMyLibraryPage] = useState(false);
 
   const handleaddBookPage = () => {
     logger.log('Add Book Page initialized');
@@ -30,6 +32,9 @@ function UserDashboard() {
     setNotificationModalOpen(!isNotificationModalOpen);
   };
 
+  const handleMyLibraryPage = () => {
+    setMyLibraryPage(!ismylibrarypage);
+  };
   const resetToHome = () => {
     console.log('clicke');
     setProfileModalOpen(!isProfieleModalOpen);
@@ -68,6 +73,7 @@ function UserDashboard() {
             <BookSidebar
               openaddpage={handleaddBookPage}
               onNotification={handleNotificationModal}
+              onMyLibrary={handleMyLibraryPage}
               onReset={resetToHome}
             />
           )}
@@ -84,6 +90,8 @@ function UserDashboard() {
               </Suspense>
             ) : isProfieleModalOpen ? (
               <ProfilePage />
+            ) : ismylibrarypage ? (
+              <MyLibrary />
             ) : (
               <FeedPage />
             )}

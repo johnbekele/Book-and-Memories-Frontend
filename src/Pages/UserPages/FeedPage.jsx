@@ -5,6 +5,7 @@ import { useLogger } from '../../Hook/useLogger.js';
 import BookPostCard from '../../Components/BookPostCard';
 import ModerationWarning from '../../Components/ModerationWarning';
 import AuthContext from '../../Context/AuthContext';
+import { useFavorite } from '../../Hook/useFavoriests.js';
 
 function FeedPage() {
   const logger = useLogger();
@@ -19,6 +20,7 @@ function FeedPage() {
     addComment,
     deletePost,
   } = usePost();
+  const { addFavorite, favorites, enhancedFav } = useFavorite();
 
   // Add state for moderation warnings
   const [moderationWarning, setModerationWarning] = useState({
@@ -26,6 +28,9 @@ function FeedPage() {
     reason: '',
     comment: '',
   });
+
+  const isFavorite =
+    books && favorites?.some((fav) => fav.bookId === books._id);
 
   // Get current user from your auth system
   const currentUser = { id: user?.id, username: user?.username };
@@ -70,16 +75,24 @@ function FeedPage() {
     return books.find((book) => book._id === postBookId) || null;
   };
 
+  //delete comment
   const handleDelete = async (commentID) => {
     console.log('comment id to delete :', commentID);
     deletePost(commentID);
   };
+
+  // handle report for users  // still need nuntation funtion
   const handleReport = async () => {
     alert('we have recived you report thank you for your coopration !');
   };
 
+  const handleFavorite = async (postId) => {
+    addFavorite(postId);
+    console.log('Favorite id is ', postId);
+  };
+
   return (
-    <div className="max-w-screen-md mx-auto p-4">
+    <div className="max-w-screen-md mx-auto p-4" id="home">
       {isLoading && <p className="text-center">Loading...</p>}
 
       {isError && (
@@ -115,6 +128,8 @@ function FeedPage() {
               onComment={handleComment}
               onDelete={handleDelete}
               onReport={handleReport}
+              onFavorite={handleFavorite}
+              isFavorite={isFavorite}
             />
           </div>
         );

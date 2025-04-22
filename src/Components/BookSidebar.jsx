@@ -30,7 +30,7 @@ import {
 
 import { format } from 'date-fns';
 
-const BookSidebar = ({ openaddpage, onNotification, onReset }) => {
+const BookSidebar = ({ openaddpage, onNotification, onReset, onMyLibrary }) => {
   // Use the new theme context
   const { theme, colors, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -54,8 +54,7 @@ const BookSidebar = ({ openaddpage, onNotification, onReset }) => {
       path: '#home',
       icon: HomeIcon,
       activeIcon: HomeSolid,
-      action: onReset,
-      isCustomAction: true,
+      isCustomAction: false,
     },
     {
       name: 'Explore',
@@ -86,14 +85,8 @@ const BookSidebar = ({ openaddpage, onNotification, onReset }) => {
       path: '/library',
       icon: BookOpenIcon,
       activeIcon: BookOpenSolid,
-      isCustomAction: false,
-    },
-    {
-      name: 'Favorites',
-      path: '/favorites',
-      icon: HeartIcon,
-      activeIcon: HeartSolid,
-      isCustomAction: false,
+      isCustomAction: true,
+      action: onMyLibrary,
     },
   ];
 
