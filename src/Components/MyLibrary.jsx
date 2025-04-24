@@ -93,7 +93,7 @@ const MyLibrary = () => {
 
   return (
     <div
-      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen  sm:px-6 lg:px-8 w-auto"
       style={{
         backgroundColor: isDark
           ? colors.backgroundColor || '#1f2937'
@@ -101,7 +101,7 @@ const MyLibrary = () => {
         color: isDark ? colors.textColor || '#f3f4f6' : '#1f2937',
       }}
     >
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
           <div>
