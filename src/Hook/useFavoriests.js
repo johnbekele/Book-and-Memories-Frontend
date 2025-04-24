@@ -33,6 +33,15 @@ const addFavorites = async (postId) => {
   return response.data;
 };
 
+const deleteFavorites = async (favId) => {
+  const response = await axios.delete(
+    `${API_URL}/delete/${favId}`,
+    {},
+    { headers: { Authorization: `Bearer ${getToken()}` } }
+  );
+
+  return response;
+};
 export function useFavorite() {
   const queryClient = useQueryClient();
 
@@ -53,29 +62,38 @@ export function useFavorite() {
     },
   });
 
-  if (booksQuery.isLoading) return { isLoading: true };
-  if (booksQuery.isError) return { isError: true };
+  const deleteFavoritesMutation = useMutation({
+    mutationFn: deleteFavorites,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['favorites']);
+    },
+  });
 
+  // Always include favorites array, even during loading
+  const favorites = favoriteQuery.data || [];
+
+  // Create mappedbooks regardless of loading state
   const mappedbooks = {};
-
   if (booksQuery.data) {
     booksQuery.data.forEach((book) => {
       mappedbooks[book._id] = book;
     });
   }
 
-  const favorite = favoriteQuery.data || [];
-
-  const enhancedFav = favorite.map((favorite) => {
-    const bookdata = mappedbooks[favorite.bookid];
-    return bookdata;
-  });
+  // Create enhancedFav only if both data sources are available
+  const enhancedFav = favorites
+    .map((favorite) => {
+      const bookdata = mappedbooks[favorite.bookid];
+      return bookdata;
+    })
+    .filter(Boolean); // Filter out undefined values
 
   return {
-    favorites: favoriteQuery.data || [],
+    favorites,
     addFavorite: addFavoritesMutation.mutate,
-    enhancedFav: enhancedFav,
-    isLoading: favoriteQuery.isLoading,
-    isError: favoriteQuery.isError,
+    deleteFavorite: deleteFavoritesMutation.mutate,
+    enhancedFav,
+    isLoading: favoriteQuery.isLoading || booksQuery.isLoading,
+    isError: favoriteQuery.isError || booksQuery.isError,
   };
 }

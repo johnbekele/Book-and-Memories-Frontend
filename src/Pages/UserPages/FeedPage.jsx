@@ -20,7 +20,7 @@ function FeedPage() {
     addComment,
     deletePost,
   } = usePost();
-  const { addFavorite, favorites, enhancedFav } = useFavorite();
+  const { addFavorite, favorites, deleteFavorite, enhancedFav } = useFavorite();
 
   // Add state for moderation warnings
   const [moderationWarning, setModerationWarning] = useState({
@@ -28,9 +28,6 @@ function FeedPage() {
     reason: '',
     comment: '',
   });
-
-  const isFavorite =
-    books && favorites?.some((fav) => fav.bookId === books._id);
 
   // Get current user from your auth system
   const currentUser = { id: user?.id, username: user?.username };
@@ -74,7 +71,9 @@ function FeedPage() {
   const findBookForPost = (postBookId) => {
     return books.find((book) => book._id === postBookId) || null;
   };
-
+  const findFavoritForPost = (postID) => {
+    return favorites.find((favorite) => favorite.postid === postID);
+  };
   //delete comment
   const handleDelete = async (commentID) => {
     console.log('comment id to delete :', commentID);
@@ -116,20 +115,20 @@ function FeedPage() {
       {/* Map through posts with proper keys */}
       {posts.map((post) => {
         const book = findBookForPost(post.book);
-
+        const favorite = findFavoritForPost(post.id);
         return (
           <div key={post._id} className="mb-4">
             <BookPostCard
               post={post}
               book={book}
               user={user}
+              favorite={favorite}
               currentUser={currentUser}
               onLike={handleLike}
               onComment={handleComment}
               onDelete={handleDelete}
               onReport={handleReport}
               onFavorite={handleFavorite}
-              isFavorite={isFavorite}
             />
           </div>
         );

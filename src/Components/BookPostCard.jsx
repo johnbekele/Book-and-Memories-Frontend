@@ -21,20 +21,28 @@ const BookPostCard = ({
   onReport,
   user,
   onFavorite,
-  isFavorite,
+  favorite,
 }) => {
   // Optimistic UI state for likes
   const [optimisticLikes, setOptimisticLikes] = useState(post.likes || []);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isHovering, setIsHovering] = useState(null);
 
+  // Optimistic UI state for favorites
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  const [optimisticFavorite, setOptimisticFavorite] = useState(
+    favorite || null
+  );
+
   // Animation states
   const [showHeartAnimation, setShowHeartAnimation] = useState(false);
   const [doubleClickLike, setDoubleClickLike] = useState(false);
+  const [showBookmarkAnimation, setShowBookmarkAnimation] = useState(false);
 
   // Use optimistic state instead of props directly
   const isLiked = optimisticLikes.includes(currentUser?.id) || false;
   const likesCount = optimisticLikes.length || 0;
+  const isFavorited = !!optimisticFavorite;
 
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -68,6 +76,13 @@ const BookPostCard = ({
     }
   }, [post.likes, isLikeLoading]);
 
+  // Update optimistic favorite when the prop changes
+  useEffect(() => {
+    if (!isFavoriteLoading) {
+      setOptimisticFavorite(favorite);
+    }
+  }, [favorite, isFavoriteLoading]);
+
   // Handle like functionality with optimistic updates
   const handleLike = async () => {
     try {
@@ -89,11 +104,45 @@ const BookPostCard = ({
       // Make the actual API call
       await onLike(post._id, isLiked);
     } catch (error) {
-      // If the API call fails, revert to the original state
       logger.error('Error liking post:', error);
       setOptimisticLikes(post.likes || []);
     } finally {
       setIsLikeLoading(false);
+    }
+  };
+
+  // Handle favorite functionality with optimistic updates
+  const handleFavorite = async () => {
+    try {
+      setIsFavoriteLoading(true);
+
+      // Optimistically update UI
+      const newFavoriteState = !isFavorited;
+
+      // If currently favorited, we'll remove it; otherwise we'll add it
+      if (isFavorited) {
+        setOptimisticFavorite(null);
+      } else {
+        // Create a temporary favorite object
+        setOptimisticFavorite({ postid: post._id, _id: `temp-${Date.now()}` });
+
+        // Show animation when adding to favorites
+        setShowBookmarkAnimation(true);
+        setTimeout(() => setShowBookmarkAnimation(false), 500);
+      }
+
+      // Make the actual API call
+      // If it's already favorited, we need to pass the favorite._id to delete it
+      await onFavorite(
+        post._id,
+        isFavorited ? optimisticFavorite?._id : undefined
+      );
+    } catch (error) {
+      logger.error('Error updating favorite status:', error);
+      // Revert to previous state on error
+      setOptimisticFavorite(favorite);
+    } finally {
+      setIsFavoriteLoading(false);
     }
   };
 
@@ -231,12 +280,16 @@ const BookPostCard = ({
                 />
               </button>
               <button
-                onClick={() => onFavorite(post._id)}
-                className="ml-auto focus:outline-none"
-                aria-label="Save"
+                onClick={handleFavorite}
+                className={`ml-auto focus:outline-none ${
+                  showBookmarkAnimation ? 'animate-bounce' : ''
+                }`}
+                aria-label={
+                  isFavorited ? 'Remove from favorites' : 'Add to favorites'
+                }
+                disabled={isFavoriteLoading}
               >
-                {' '}
-                {isFavorite ? (
+                {isFavorited ? (
                   <BookmarkIcon
                     style={{ color: colors.textColor, fill: colors.textColor }}
                     className="h-6 w-6"

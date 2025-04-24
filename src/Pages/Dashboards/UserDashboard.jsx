@@ -16,18 +16,14 @@ const AddBookPage = lazy(() => import('../UserPages/AddBookPage'));
 function UserDashboard() {
   const logger = useLogger();
   const { darkMode } = useTheme();
-  const [addBookPage, setAddBookPage] = useState(false);
+  const [activeView, setActiveView] = useState('home'); // 'home', 'addBook', 'profile', 'myLibrary'
   const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
   const { notifications, isLoading, isError } = useNotification();
-  const [isProfieleModalOpen, setProfileModalOpen] = useState(false);
   const { user, isLoading: userLoading, isError: userError } = useUser();
-  const [ismylibrarypage, setMyLibraryPage] = useState(false);
-  const [isHome, setIsHomePage] = useState(true);
 
   const handleaddBookPage = () => {
     logger.log('Add Book Page initialized');
-    setAddBookPage(!addBookPage);
-    setIsHomePage(!isHome);
+    setActiveView(activeView === 'addBook' ? 'home' : 'addBook');
   };
 
   const handleNotificationModal = () => {
@@ -35,34 +31,48 @@ function UserDashboard() {
   };
 
   const handleMyLibraryPage = () => {
-    setMyLibraryPage(!ismylibrarypage);
-    setIsHomePage(!isHome);
-  };
-  const resetToHome = () => {
-    setIsHomePage(true);
+    setActiveView(activeView === 'myLibrary' ? 'home' : 'myLibrary');
   };
 
-  const handleUpdateUser = (updatedUserData) => {
-    console.log('Updating user data:', updatedUserData);
-    // Implement the logic to update the user data
-    // This might involve calling an API or updating context state
+  const resetToHome = () => {
+    setActiveView('home');
+    logger.log('Reset to home view');
   };
 
   const handleProfileModal = () => {
-    console.log('Profile Modal initialized');
-    setIsHomePage(!isHome);
+    logger.log('Profile Modal initialized');
+    setActiveView(activeView === 'profile' ? 'home' : 'profile');
   };
+
+  // Render the active component based on state
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'addBook':
+        return (
+          <Suspense fallback={<div>Loading...</div>}>
+            <AddBookPage openaddpage={handleaddBookPage} />
+          </Suspense>
+        );
+      case 'profile':
+        return <ProfilePage />;
+      case 'myLibrary':
+        return <MyLibrary />;
+      case 'home':
+      default:
+        return <FeedPage />;
+    }
+  };
+
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-base-300' : 'bg-base-100'}`}>
       <UserNavBar
         fromwhere="user"
         onNotification={handleNotificationModal}
         onProfile={handleProfileModal}
+        activeView={activeView}
       />
       {/* Add padding-top to account for fixed navbar */}
       <div className="pt-16">
-        {' '}
-        {/* Adjust this value based on your navbar height */}
         <div className="flex flex-col md:flex-row">
           {isNotificationModalOpen ? (
             <NotificationModal
@@ -77,6 +87,7 @@ function UserDashboard() {
               onNotification={handleNotificationModal}
               onMyLibrary={handleMyLibraryPage}
               onHome={resetToHome}
+              activeView={activeView}
             />
           )}
 
@@ -85,15 +96,7 @@ function UserDashboard() {
               darkMode ? 'text-gray-200' : 'text-gray-800'
             }`}
           >
-            {' '}
-            {addBookPage && (
-              <Suspense fallback={<div>Loading...</div>}>
-                <AddBookPage openaddpage={handleaddBookPage} />
-              </Suspense>
-            )}
-            {isProfieleModalOpen && <ProfilePage />}{' '}
-            {ismylibrarypage && <MyLibrary />}
-            {isHome && <FeedPage />}
+            {renderActiveView()}
           </main>
         </div>
       </div>

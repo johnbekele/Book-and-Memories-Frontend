@@ -30,13 +30,7 @@ import {
 
 import { format } from 'date-fns';
 
-const BookSidebar = ({
-  openaddpage,
-  onNotification,
-  onReset,
-  onMyLibrary,
-  onHome,
-}) => {
+const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
   // Use the new theme context
   const { theme, colors, toggleTheme } = useTheme();
   const isDark = theme === 'dark';

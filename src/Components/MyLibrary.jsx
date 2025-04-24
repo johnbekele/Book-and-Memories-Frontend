@@ -5,8 +5,6 @@ import BookFormOverlay from './BookFormOverlay.jsx';
 import { useFavorite } from '../Hook/useFavoriests.js';
 
 const MyLibrary = () => {
-  const { favorites, enhancedFav, isError, isLoading } = useFavorite();
-
   // Mock data directly in the component
   const mockBooks = [
     {
