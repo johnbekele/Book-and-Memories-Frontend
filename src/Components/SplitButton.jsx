@@ -62,7 +62,7 @@ export default function SplitButton({ options, handleDecision }) {
             },
           }}
         >
-          {selectedOption.labele}
+          {selectedOption.label}
         </Button>
         <Button
           size="small"
@@ -103,7 +103,7 @@ export default function SplitButton({ options, handleDecision }) {
               fontSize: '0.875rem',
             }}
           >
-            {option.lable}
+            {option.label}
           </MenuItem>
         ))}
       </Menu>
