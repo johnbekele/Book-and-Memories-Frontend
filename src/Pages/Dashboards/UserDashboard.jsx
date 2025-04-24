@@ -22,10 +22,12 @@ function UserDashboard() {
   const [isProfieleModalOpen, setProfileModalOpen] = useState(false);
   const { user, isLoading: userLoading, isError: userError } = useUser();
   const [ismylibrarypage, setMyLibraryPage] = useState(false);
+  const [isHome, setIsHomePage] = useState(true);
 
   const handleaddBookPage = () => {
     logger.log('Add Book Page initialized');
     setAddBookPage(!addBookPage);
+    setIsHomePage(!isHome);
   };
 
   const handleNotificationModal = () => {
@@ -34,10 +36,10 @@ function UserDashboard() {
 
   const handleMyLibraryPage = () => {
     setMyLibraryPage(!ismylibrarypage);
+    setIsHomePage(!isHome);
   };
   const resetToHome = () => {
-    console.log('clicke');
-    setProfileModalOpen(!isProfieleModalOpen);
+    setIsHomePage(true);
   };
 
   const handleUpdateUser = (updatedUserData) => {
@@ -48,7 +50,7 @@ function UserDashboard() {
 
   const handleProfileModal = () => {
     console.log('Profile Modal initialized');
-    setProfileModalOpen(!isProfieleModalOpen);
+    setIsHomePage(!isHome);
   };
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-base-300' : 'bg-base-100'}`}>
@@ -74,7 +76,7 @@ function UserDashboard() {
               openaddpage={handleaddBookPage}
               onNotification={handleNotificationModal}
               onMyLibrary={handleMyLibraryPage}
-              onReset={resetToHome}
+              onHome={resetToHome}
             />
           )}
 
@@ -84,17 +86,14 @@ function UserDashboard() {
             }`}
           >
             {' '}
-            {addBookPage ? (
+            {addBookPage && (
               <Suspense fallback={<div>Loading...</div>}>
                 <AddBookPage openaddpage={handleaddBookPage} />
               </Suspense>
-            ) : isProfieleModalOpen ? (
-              <ProfilePage />
-            ) : ismylibrarypage ? (
-              <MyLibrary />
-            ) : (
-              <FeedPage />
             )}
+            {isProfieleModalOpen && <ProfilePage />}{' '}
+            {ismylibrarypage && <MyLibrary />}
+            {isHome && <FeedPage />}
           </main>
         </div>
       </div>
