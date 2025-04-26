@@ -78,14 +78,14 @@ const InnerRoutes = () => {
             </Suspense>
           }
         />
-        <Route
+        {/* <Route
           path="books/add"
           element={
             <Suspense fallback={<SmallSpinner />}>
               <AddBookPage />
             </Suspense>
           }
-        />
+        /> */}
         <Route
           path="library"
           element={

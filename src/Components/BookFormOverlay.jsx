@@ -195,7 +195,7 @@ const BookFormOverlay = ({ onClose }) => {
         >
           {/* Header */}
           <div className="flex justify-between items-center p-4 border-b dark:border-gray-700">
-            <h2 className="text-xl font-bold">Add a New Book</h2>
+            <h2 className="text-xl font-bold">Creat a new Post</h2>
             <button
               onClick={onClose}
               className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"

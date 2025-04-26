@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, act } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../Context/ThemeContext';
 
@@ -29,7 +29,7 @@ import {
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightSolid,
 } from '@heroicons/react/24/solid';
 
-const BookSidebar = ({ onNotification, activeView, onHome }) => {
+const BookSidebar = ({ onNotification, activeView, onHome, onAddBook }) => {
   // Use the new theme context
   const { theme, colors, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -68,7 +68,9 @@ const BookSidebar = ({ onNotification, activeView, onHome }) => {
     },
     {
       name: 'Post',
-      path: '/user-dashboard/books/add',
+      path: '#post',
+      isCustomAction: true,
+      action: onAddBook,
       icon: PlusCircleIcon,
       activeIcon: PlusCircleIcon,
       isActive: activeView === 'addBook',

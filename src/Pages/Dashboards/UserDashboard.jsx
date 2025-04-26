@@ -9,6 +9,7 @@ import { useNotification } from '../../Hook/useNotification.js';
 import { useUser } from '../../Hook/useUser.js';
 import { useState } from 'react';
 import { saveCurrentPath, restoreLastPath } from '../../utils/sessionHelper';
+import AddBookPage from '../UserPages/AddBookPage.jsx';
 
 function UserDashboard() {
   const logger = useLogger();
@@ -16,6 +17,7 @@ function UserDashboard() {
   const location = useLocation();
   const { darkMode } = useTheme();
   const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [isaddBookPageOpen, setaddBookPageOpen] = useState(false);
   const { notifications, isLoading, isError } = useNotification();
   const { user, isLoading: userLoading, isError: userError } = useUser();
 
@@ -43,8 +45,7 @@ function UserDashboard() {
   const activeView = getActiveView();
 
   const handleaddBookPage = () => {
-    logger.log('Add Book Page initialized');
-    navigate('/user-dashboard/books/add');
+    setaddBookPageOpen(!isaddBookPageOpen);
   };
 
   const handleNotificationModal = () => {
@@ -95,14 +96,16 @@ function UserDashboard() {
             />
           ) : (
             <BookSidebar
-              openaddpage={handleaddBookPage}
               onNotification={handleNotificationModal}
               onMyLibrary={handleMyLibraryPage}
               onHome={resetToHome}
               onChat={handleChatPage}
               activeView={activeView}
+              onAddBook={handleaddBookPage}
             />
           )}
+
+          {isaddBookPageOpen && <AddBookPage onClose={handleaddBookPage} />}
 
           <main
             className={`flex-1 p-4 md:ml-64 ${

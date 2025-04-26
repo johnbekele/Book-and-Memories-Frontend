@@ -7,11 +7,11 @@ import ModerationWarning from '../../Components/ModerationWarning';
 import BookFormOverlay from '../../Components/BookFormOverlay';
 import AuthContext from '../../Context/AuthContext';
 
-function AddBookPage({ openaddpage }) {
+function AddBookPage({ onClose }) {
   const { user } = useContext(AuthContext);
   const { books, isLoading: booksLoading } = useBooks();
   const navigate = useNavigate();
-  return <div>add</div>;
+  return <BookFormOverlay onClose={onClose} />;
 }
 
 export default AddBookPage;
