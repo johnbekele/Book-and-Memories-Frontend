@@ -19,7 +19,7 @@ const Chat = () => {
   useEffect(() => {
     console.log('Attempting to connect to socket at:', 'http://localhost:3000');
 
-    const newSocket = io('http://localhost:3000', {
+    const newSocket = io(API_URL, {
       auth: {
         token: localStorage.getItem('token'),
       },
