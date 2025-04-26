@@ -28,15 +28,16 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
   const dropdownRef = useRef(null);
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-  const closeDropdown = () => {
+
+  const closeDropdown = (skipProfileRedirect = false) => {
     setDropdownOpen(false);
-    if (onProfile) onProfile();
+    if (onProfile && !skipProfileRedirect) onProfile();
   };
 
-  // Function to handle role switching
+  // And update the role switching function:
   const handleRoleSwitch = (role) => {
-    setActiveRole(role); // Use the context function to set active role
-    closeDropdown();
+    setActiveRole(role);
+    closeDropdown(true); // Pass true to skip the profile redirect
   };
 
   // Close dropdown when clicking outside

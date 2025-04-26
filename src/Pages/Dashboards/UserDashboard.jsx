@@ -22,11 +22,13 @@ function UserDashboard() {
   // Save current path to session storage & restore on reload
   useEffect(() => {
     // Try to restore the last path from session storage
-    restoreLastPath(navigate);
+    if (location.pathname === '/') {
+      restoreLastPath(navigate);
+    }
 
     // Set up the beforeunload event listener to save the current path
     return saveCurrentPath();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   // Determine active view based on current path
   const getActiveView = () => {

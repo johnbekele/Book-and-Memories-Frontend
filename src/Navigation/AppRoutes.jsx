@@ -58,7 +58,7 @@ const InnerRoutes = () => {
         }
       />
 
-      {/* Protected Routes */}
+      {/* Protected User Routes */}
       <Route
         path="/user-dashboard"
         element={
@@ -112,6 +112,7 @@ const InnerRoutes = () => {
         />
       </Route>
 
+      {/* Protected Moderator Routes */}
       <Route
         path="/moderator-dashboard"
         element={
@@ -121,8 +122,20 @@ const InnerRoutes = () => {
             </Suspense>
           </ProtectedRoute>
         }
-      />
+      >
+        {/* Add nested routes for moderator dashboard if needed */}
+        <Route
+          path="profile"
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <Profile />
+            </Suspense>
+          }
+        />
+        {/* You can add other moderator-specific routes here */}
+      </Route>
 
+      {/* Protected Admin Routes */}
       <Route
         path="/admin-dashboard"
         element={
@@ -132,7 +145,26 @@ const InnerRoutes = () => {
             </Suspense>
           </ProtectedRoute>
         }
-      />
+      >
+        {/* Add nested routes for admin dashboard */}
+        <Route
+          index
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <AdminDashboard />
+            </Suspense>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <Profile />
+            </Suspense>
+          }
+        />
+        {/* You can add other admin-specific routes here */}
+      </Route>
 
       {/* Home */}
       <Route path="/" element={<Navigate to="/user-dashboard" />} />
