@@ -23,7 +23,7 @@ const Chat = () => {
       auth: {
         token: localStorage.getItem('token'),
       },
-      transports: ['polling', 'websocket'], // Try polling first, then websocket
+      transports: ['websocket', 'polling'], // Try polling first, then websocket
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       timeout: 20000,
