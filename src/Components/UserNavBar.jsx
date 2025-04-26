@@ -29,9 +29,8 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile, onHome }) => {
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
-  const closeDropdown = (skipProfileRedirect = false) => {
+  const closeDropdown = () => {
     setDropdownOpen(false);
-    if (onProfile && !skipProfileRedirect) onProfile();
   };
 
   // And update the role switching function:
@@ -158,7 +157,11 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile, onHome }) => {
                         : 'rgba(0,0,0,0.05)',
                     }}
                   >
-                    <Link className="menu-item" to="" onClick={closeDropdown}>
+                    <Link
+                      className="menu-item"
+                      to="/user-dashboard/profile"
+                      onClick={closeDropdown}
+                    >
                       <div className="menu-item-content">
                         <UserCircleIcon className="menu-icon" />
                         <span>Profile</span>
