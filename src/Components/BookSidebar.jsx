@@ -75,7 +75,7 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
     },
     {
       name: 'Post',
-      path: '/books/add',
+      path: 'books/add',
       icon: PlusCircleIcon,
       activeIcon: BookmarkSolid,
       isCustomAction: true,
@@ -83,7 +83,7 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
     },
     {
       name: 'My Library',
-      path: '/library',
+      path: '/user-dashboard/library',
       icon: BookOpenIcon,
       activeIcon: BookOpenSolid,
       isCustomAction: true,

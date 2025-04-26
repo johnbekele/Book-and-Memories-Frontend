@@ -18,7 +18,7 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, setActiveRole } = useContext(AuthContext); // Added setActiveRole
   const navigate = useNavigate();
   const logger = useLogger();
   const { theme, toggleTheme, colors } = useTheme();
@@ -30,7 +30,13 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const closeDropdown = () => {
     setDropdownOpen(false);
-    onProfile();
+    if (onProfile) onProfile();
+  };
+
+  // Function to handle role switching
+  const handleRoleSwitch = (role) => {
+    setActiveRole(role); // Use the context function to set active role
+    closeDropdown();
   };
 
   // Close dropdown when clicking outside
@@ -52,10 +58,19 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
       <div className="navbar-container">
         {/* Logo at the left edge */}
         <div className="logo-section">
-          <Link to="/user-dashboard" className="logo-link">
+          {/* Change this to use the current active role */}
+          <button
+            onClick={() => {
+              // Default to user dashboard if no role is stored
+              const currentRole =
+                localStorage.getItem('selectedRole') || 'User';
+              navigate(`/${currentRole.toLowerCase()}-dashboard`);
+            }}
+            className="logo-link"
+          >
             <BookOpenIcon className="logo-icon" />
             <span className="logo-text">BookMeMo</span>
-          </Link>
+          </button>
         </div>
 
         {/* Empty space in the middle */}
@@ -65,7 +80,8 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
         <div className="user-wrapper">
           <div className="welcome-section">
             <p className="welcome-text">
-              Welcome <span className="user-name">{user.firstname}</span>!
+              Welcome{' '}
+              <span className="user-name">{user?.firstname || 'User'}</span>!
             </p>
           </div>
 
@@ -80,7 +96,10 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
             >
               <div className="avatar-ring">
                 <div className="avatar">
-                  <img alt="User avatar" src={user.photo} />
+                  <img
+                    alt="User avatar"
+                    src={user?.photo || '/default-avatar.png'}
+                  />
                 </div>
               </div>
             </motion.button>
@@ -170,7 +189,9 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                       <span className="badge">New</span>
                     </Link>
                   </motion.div>
-                  {user.role.User &&
+
+                  {/* Modified Dashboard Links */}
+                  {user?.role?.User &&
                     user.role.User >= 2001 &&
                     fromwhere !== 'user' && (
                       <motion.div
@@ -180,20 +201,19 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                             : 'rgba(0,0,0,0.05)',
                         }}
                       >
-                        <Link
+                        <button
                           className="menu-item"
-                          to="/auth-success"
-                          state={{ redirectTo: '/user-dashboard' }}
-                          onClick={closeDropdown}
+                          onClick={() => handleRoleSwitch('User')}
                         >
                           <div className="menu-item-content">
                             <UserIcon className="menu-icon" />
                             <span>User Dashboard</span>
                           </div>
-                        </Link>
+                        </button>
                       </motion.div>
                     )}
-                  {user.role.Admin &&
+
+                  {user?.role?.Admin &&
                     user.role.Admin >= 4001 &&
                     fromwhere !== 'admin' && (
                       <motion.div
@@ -203,21 +223,19 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                             : 'rgba(0,0,0,0.05)',
                         }}
                       >
-                        <Link
+                        <button
                           className="menu-item"
-                          to="/auth-success"
-                          state={{ redirectTo: '/admin-dashboard' }}
-                          onClick={closeDropdown}
+                          onClick={() => handleRoleSwitch('Admin')}
                         >
                           <div className="menu-item-content">
                             <ShieldCheckIcon className="menu-icon" />
                             <span>Admin Dashboard</span>
                           </div>
-                        </Link>
+                        </button>
                       </motion.div>
                     )}
 
-                  {user.role.Moderator &&
+                  {user?.role?.Moderator &&
                     user.role.Moderator >= 3001 &&
                     fromwhere !== 'moderator' && (
                       <motion.div
@@ -227,17 +245,15 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                             : 'rgba(0,0,0,0.05)',
                         }}
                       >
-                        <Link
+                        <button
                           className="menu-item"
-                          to="/auth-success"
-                          state={{ redirectTo: '/moderator-dashboard' }}
-                          onClick={closeDropdown}
+                          onClick={() => handleRoleSwitch('Moderator')}
                         >
                           <div className="menu-item-content">
                             <WrenchIcon className="menu-icon" />
                             <span>Moderator Dashboard</span>
                           </div>
-                        </Link>
+                        </button>
                       </motion.div>
                     )}
 
@@ -250,10 +266,9 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                         : 'rgba(254,226,226,1)',
                     }}
                   >
-                    <Link
+                    <button
                       className="menu-item logout"
-                      to="/"
-                      onClick={(e) => {
+                      onClick={() => {
                         logout();
                         closeDropdown();
                       }}
@@ -262,7 +277,7 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
                         <ArrowRightOnRectangleIcon className="menu-icon" />
                         <span>Logout</span>
                       </div>
-                    </Link>
+                    </button>
                   </motion.div>
                 </motion.div>
               )}
@@ -274,7 +289,7 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
   );
 };
 
-// Styled component for the navbar
+// Styled component for the navbar remains the same
 const StyledNavbar = styled.nav`
   position: fixed;
   top: 0;
@@ -304,6 +319,10 @@ const StyledNavbar = styled.nav`
     display: flex;
     align-items: center;
     text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
   }
 
   .logo-icon {
@@ -409,6 +428,10 @@ const StyledNavbar = styled.nav`
     transition: background-color 0.2s ease;
     cursor: pointer;
     font-size: 0.875rem;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
   }
 
   .menu-item-content {

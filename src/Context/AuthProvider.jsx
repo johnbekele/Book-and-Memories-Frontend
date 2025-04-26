@@ -1,5 +1,8 @@
+// 1. First, let's fix the AuthProvider.jsx
+
+// In AuthProvider.jsx
 import { useState, useEffect, useCallback } from 'react';
-import { redirect, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import AuthContext from './AuthContext';
 import { API_URL } from '../Config/EnvConfig';
 import { useLogger } from '../Hook/useLogger';
@@ -12,10 +15,15 @@ const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
   const logger = useLogger();
 
+  // Add a state to store the intended dashboard
+  const [intendedDashboard, setIntendedDashboard] = useState(null);
+
   const logout = useCallback(() => {
     setLoading(true);
     logger.log('Logging out user');
     localStorage.removeItem('token');
+    localStorage.removeItem('selectedRole'); // Clear role selection on logout
+    localStorage.removeItem('lastVisitedPath'); // Clear last path on logout
     setUser(null);
     setLoading(false);
     navigate('/login');
@@ -27,13 +35,7 @@ const AuthProvider = ({ children }) => {
       try {
         setLoading(true);
         const timeleft = await getTokenExpirationTime(token);
-        typeof timeleft;
         console.log('time left', timeleft);
-
-        // Debug token
-        // logger.log('Token being used:', token);
-        // logger.log('Token type:', typeof token);
-        // logger.log('Token length:', token ? token.length : 0);
 
         if (!token) {
           logger.error('No valid token available');
@@ -60,15 +62,35 @@ const AuthProvider = ({ children }) => {
         }
 
         const data = await response.json();
-        // logger.log('User data fetched:', data);
 
         // Update user state
         setUser(data);
-        if (window.location.pathname !== '/auth-success') {
-          navigate('/auth-success', {
-            state: { redirectTo: '/user-dashboard' },
-          });
+
+        // Check if we have a stored role selection
+        const selectedRole = localStorage.getItem('selectedRole');
+
+        // If we have a path to navigate to after auth
+        const lastPath = localStorage.getItem('lastVisitedPath');
+
+        if (
+          selectedRole &&
+          ['Admin', 'Moderator', 'User'].includes(selectedRole)
+        ) {
+          // If role is already selected, go directly to that dashboard
+          const dashboardPath = `/${selectedRole.toLowerCase()}-dashboard`;
+          navigate(dashboardPath, { replace: true });
+        } else if (
+          lastPath &&
+          lastPath !== '/login' &&
+          lastPath !== '/auth-success'
+        ) {
+          // If we have a last path that's not login or auth-success, go there
+          navigate(lastPath, { replace: true });
+        } else {
+          // Otherwise, go to auth-success to choose role
+          navigate('/auth-success', { replace: true });
         }
+
         setLoading(false);
         return true;
       } catch (error) {
@@ -83,7 +105,7 @@ const AuthProvider = ({ children }) => {
         return false;
       }
     },
-    [logout]
+    [logout, navigate]
   );
 
   // Check for Google OAuth redirect
@@ -118,7 +140,16 @@ const AuthProvider = ({ children }) => {
     };
 
     checkForGoogleRedirect();
-  }, [fetchUser]);
+  }, [fetchUser, initialized]);
+
+  // Function to set active role
+  const setActiveRole = (role) => {
+    if (['Admin', 'Moderator', 'User'].includes(role)) {
+      localStorage.setItem('selectedRole', role);
+      const dashboardPath = `/${role.toLowerCase()}-dashboard`;
+      navigate(dashboardPath, { replace: true });
+    }
+  };
 
   // Login function
   const login = async (loginData) => {
@@ -170,10 +201,11 @@ const AuthProvider = ({ children }) => {
         logger.log('User logged in:', data.user);
         logger.log('Dashboard role:', data.user.role);
 
-        // Redirect to dashboard
-        navigate('/auth-success', {
-          state: { redirectTo: '/user-dashboard' },
-        });
+        // Clear any previous role selection when logging in fresh
+        localStorage.removeItem('selectedRole');
+
+        // Redirect to auth-success for role selection
+        navigate('/auth-success', { replace: true });
         setLoading(false);
         return true;
       } else {
@@ -181,9 +213,8 @@ const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'Login failed');
       }
     } catch (error) {
-      //logger.error('Login failed:', error);
       setLoading(false);
-      return false, error;
+      return [false, error];
     }
   };
 
@@ -197,21 +228,6 @@ const AuthProvider = ({ children }) => {
     window.location.href = `${API_URL}/auth/google`;
   };
 
-  // // Route Dashboard according to roles
-  // const getDashboardRoute = (role) => {
-  //   if (!role) return '/';
-
-  //   if (role.Admin && role.Admin >= 4001) {
-  //     return '/user-dashboard';
-  //   } else if (role.Moderator && role.Moderator >= 3001) {
-  //     return '/user-dashboard';
-  //   } else if (role.User && role.User >= 2001) {
-  //     return '/user-dashboard';
-  //   } else {
-  //     return '/';
-  //   }
-  // };
-
   const contextValue = {
     user,
     loading,
@@ -219,6 +235,9 @@ const AuthProvider = ({ children }) => {
     login,
     logout,
     googleLogin,
+    setActiveRole, // New function to set active role
+    intendedDashboard,
+    setIntendedDashboard,
   };
 
   return (
