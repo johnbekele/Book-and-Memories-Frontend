@@ -20,7 +20,7 @@ const Chat = () => {
   useEffect(() => {
     console.log('Attempting to connect to socket at:', SOCKET_URL);
 
-    const newSocket = io(API_URL, {
+    const newSocket = io(SOCKET_URL, {
       auth: {
         token: localStorage.getItem('token'),
       },
