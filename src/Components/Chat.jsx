@@ -17,7 +17,7 @@ const Chat = () => {
 
   // Connect to socket when component mounts
   useEffect(() => {
-    console.log('Attempting to connect to socket at:', 'http://localhost:3000');
+    console.log('Attempting to connect to socket at:', API_URL);
 
     const newSocket = io(API_URL, {
       auth: {
