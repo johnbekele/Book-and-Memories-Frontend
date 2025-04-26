@@ -15,9 +15,10 @@ const Chat = () => {
   const queryClient = useQueryClient();
   const messagesEndRef = useRef(null);
 
+  const SOCKET_URL = API_URL.split('/api')[0];
   // Connect to socket when component mounts
   useEffect(() => {
-    console.log('Attempting to connect to socket at:', API_URL);
+    console.log('Attempting to connect to socket at:', SOCKET_URL);
 
     const newSocket = io(API_URL, {
       auth: {
