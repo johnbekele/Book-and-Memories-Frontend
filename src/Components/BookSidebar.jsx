@@ -29,7 +29,7 @@ import {
   ChatBubbleLeftRightIcon as ChatBubbleLeftRightSolid,
 } from '@heroicons/react/24/solid';
 
-const BookSidebar = ({ onNotification, activeView }) => {
+const BookSidebar = ({ onNotification, activeView, onHome }) => {
   // Use the new theme context
   const { theme, colors, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -44,6 +44,8 @@ const BookSidebar = ({ onNotification, activeView }) => {
       name: 'Home',
       path: '/user-dashboard',
       icon: HomeIcon,
+      isCustomAction: true,
+      action: onHome,
       activeIcon: HomeSolid,
       isActive: activeView === 'home',
     },

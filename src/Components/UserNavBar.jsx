@@ -17,7 +17,7 @@ import {
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
+const UserNavBar = ({ fromwhere, onNotification, onProfile, onHome }) => {
   const { user, logout, setActiveRole } = useContext(AuthContext); // Added setActiveRole
   const navigate = useNavigate();
   const logger = useLogger();
@@ -60,15 +60,7 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile }) => {
         {/* Logo at the left edge */}
         <div className="logo-section">
           {/* Change this to use the current active role */}
-          <button
-            onClick={() => {
-              // Default to user dashboard if no role is stored
-              const currentRole =
-                localStorage.getItem('selectedRole') || 'User';
-              navigate(`/${currentRole.toLowerCase()}-dashboard`);
-            }}
-            className="logo-link"
-          >
+          <button onClick={onHome} className="logo-link">
             <BookOpenIcon className="logo-icon" />
             <span className="logo-text">BookMeMo</span>
           </button>

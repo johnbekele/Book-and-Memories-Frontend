@@ -22,7 +22,7 @@ function UserDashboard() {
   // Save current path to session storage & restore on reload
   useEffect(() => {
     // Try to restore the last path from session storage
-    if (location.pathname === '/') {
+    if (location.pathname === '/' || location.pathname === '/user-dashboard') {
       restoreLastPath(navigate);
     }
 
@@ -57,6 +57,9 @@ function UserDashboard() {
   };
 
   const resetToHome = () => {
+    // First clear the lastPath from session storage to prevent auto-redirect
+    sessionStorage.removeItem('lastPath');
+    // Then navigate to dashboard index
     navigate('/user-dashboard');
     logger.log('Reset to home view');
   };
@@ -78,6 +81,7 @@ function UserDashboard() {
         onNotification={handleNotificationModal}
         onProfile={handleProfileModal}
         activeView={activeView}
+        onHome={resetToHome}
       />
       {/* Add padding-top to account for fixed navbar */}
       <div className="pt-16">
