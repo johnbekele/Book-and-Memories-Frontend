@@ -19,8 +19,10 @@ const ModeratorDashboard = lazy(() =>
 );
 const AdminDashboard = lazy(() => import('../Pages/Dashboards/AdminDashboard'));
 const AddBookPage = lazy(() => import('../Pages/UserPages/AddBookPage'));
-
 const Profile = lazy(() => import('../Components/ProfilePage.jsx'));
+const FeedPage = lazy(() => import('../Pages/UserPages/FeedPage.jsx'));
+const MyLibrary = lazy(() => import('../Components/MyLibrary.jsx'));
+const Chat = lazy(() => import('../Components/Chat.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -33,7 +35,7 @@ const AppRoutes = () => {
 };
 
 const InnerRoutes = () => {
-  useSaveLastLocation(); // <--- NOW INSIDE ROUTER CONTEXT
+  useSaveLastLocation(); // Now inside router context
 
   return (
     <Routes>
@@ -41,11 +43,12 @@ const InnerRoutes = () => {
       <Route
         path="/login"
         element={
-          <Suspense fallback={<SmallSpinner />}>
+          <Suspense fallback={<LoadingSpinner />}>
             <LoginPage />
           </Suspense>
         }
       />
+
       <Route
         path="/auth-success"
         element={
@@ -59,21 +62,52 @@ const InnerRoutes = () => {
       <Route
         path="/user-dashboard"
         element={
-          <ProtectedRoute requiredRole="User">
+          <ProtectedRoute allowedRoles={['user']}>
             <Suspense fallback={<LoadingSpinner />}>
               <UserDashboard />
             </Suspense>
           </ProtectedRoute>
         }
       >
+        {/* Nested User Dashboard Routes */}
+        <Route
+          index
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <FeedPage />
+            </Suspense>
+          }
+        />
         <Route
           path="books/add"
           element={
-            <ProtectedRoute requiredRole="User">
-              <Suspense fallback={<LoadingSpinner />}>
-                <AddBookPage />
-              </Suspense>
-            </ProtectedRoute>
+            <Suspense fallback={<SmallSpinner />}>
+              <AddBookPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="library"
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <MyLibrary />
+            </Suspense>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <Profile />
+            </Suspense>
+          }
+        />
+        <Route
+          path="chat"
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <Chat />
+            </Suspense>
           }
         />
       </Route>
@@ -81,18 +115,19 @@ const InnerRoutes = () => {
       <Route
         path="/moderator-dashboard"
         element={
-          <ProtectedRoute requiredRole="Moderator">
-            <Suspense fallback={<SmallSpinner />}>
+          <ProtectedRoute allowedRoles={['moderator']}>
+            <Suspense fallback={<LoadingSpinner />}>
               <ModeratorDashboard />
             </Suspense>
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/admin-dashboard"
         element={
-          <ProtectedRoute requiredRole="Admin">
-            <Suspense fallback={<SmallSpinner />}>
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<LoadingSpinner />}>
               <AdminDashboard />
             </Suspense>
           </ProtectedRoute>
@@ -100,8 +135,8 @@ const InnerRoutes = () => {
       />
 
       {/* Home */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Navigate to="/user-dashboard" />} />
+      <Route path="*" element={<Navigate to="/user-dashboard" />} />
     </Routes>
   );
 };

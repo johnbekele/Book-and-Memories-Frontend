@@ -1,30 +1,48 @@
-import React, { useState, lazy, Suspense } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { Suspense, useEffect } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import UserNavBar from '../../Components/UserNavBar';
-import FeedPage from '../UserPages/FeedPage';
 import BookSidebar from '../../Components/BookSidebar';
 import { useTheme } from '../../Context/ThemeContext';
 import { useLogger } from '../../Hook/useLogger.js';
 import NotificationModal from '../../Components/NotificationModal';
 import { useNotification } from '../../Hook/useNotification.js';
-import ProfilePage from '../../Components/ProfilePage.jsx';
 import { useUser } from '../../Hook/useUser.js';
-import MyLibrary from '../../Components/MyLibrary.jsx';
-import Chat from '../../Components/Chat.jsx';
-
-const AddBookPage = lazy(() => import('../UserPages/AddBookPage'));
+import { useState } from 'react';
+import { saveCurrentPath, restoreLastPath } from '../../utils/sessionHelper';
 
 function UserDashboard() {
   const logger = useLogger();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { darkMode } = useTheme();
-  const [activeView, setActiveView] = useState('home'); // 'home', 'addBook', 'profile', 'myLibrary'
   const [isNotificationModalOpen, setNotificationModalOpen] = useState(false);
   const { notifications, isLoading, isError } = useNotification();
   const { user, isLoading: userLoading, isError: userError } = useUser();
 
+  // Save current path to session storage & restore on reload
+  useEffect(() => {
+    // Try to restore the last path from session storage
+    restoreLastPath(navigate);
+
+    // Set up the beforeunload event listener to save the current path
+    return saveCurrentPath();
+  }, [navigate]);
+
+  // Determine active view based on current path
+  const getActiveView = () => {
+    const path = location.pathname;
+    if (path.includes('/books/add')) return 'addBook';
+    if (path.includes('/profile')) return 'profile';
+    if (path.includes('/library')) return 'myLibrary';
+    if (path.includes('/chat')) return 'chat';
+    return 'home';
+  };
+
+  const activeView = getActiveView();
+
   const handleaddBookPage = () => {
     logger.log('Add Book Page initialized');
-    setActiveView(activeView === 'addBook' ? 'home' : 'addBook');
+    navigate('/user-dashboard/books/add');
   };
 
   const handleNotificationModal = () => {
@@ -32,36 +50,23 @@ function UserDashboard() {
   };
 
   const handleMyLibraryPage = () => {
-    setActiveView(activeView === 'myLibrary' ? 'home' : 'myLibrary');
+    navigate('/user-dashboard/library');
+    logger.log('My Library Page initialized');
   };
 
   const resetToHome = () => {
-    setActiveView('home');
+    navigate('/user-dashboard');
     logger.log('Reset to home view');
   };
 
   const handleProfileModal = () => {
+    navigate('/user-dashboard/profile');
     logger.log('Profile Modal initialized');
-    setActiveView(activeView === 'profile' ? 'home' : 'profile');
   };
 
-  // Render the active component based on state
-  const renderActiveView = () => {
-    switch (activeView) {
-      case 'addBook':
-        return (
-          <Suspense fallback={<div>Loading...</div>}>
-            <AddBookPage openaddpage={handleaddBookPage} />
-          </Suspense>
-        );
-      case 'profile':
-        return <ProfilePage />;
-      case 'myLibrary':
-        return <MyLibrary />;
-      case 'home':
-      default:
-        return <Chat />;
-    }
+  const handleChatPage = () => {
+    navigate('/user-dashboard/chat');
+    logger.log('Chat Page initialized');
   };
 
   return (
@@ -88,16 +93,19 @@ function UserDashboard() {
               onNotification={handleNotificationModal}
               onMyLibrary={handleMyLibraryPage}
               onHome={resetToHome}
+              onChat={handleChatPage}
               activeView={activeView}
             />
           )}
 
           <main
-            className={`flex-1 p-4 ${
+            className={`flex-1 p-4 md:ml-64 ${
               darkMode ? 'text-gray-200' : 'text-gray-800'
             }`}
           >
-            {renderActiveView()}
+            <Suspense fallback={<div>Loading...</div>}>
+              <Outlet />
+            </Suspense>
           </main>
         </div>
       </div>

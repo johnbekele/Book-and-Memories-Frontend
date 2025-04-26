@@ -10,6 +10,7 @@ export default defineConfig({
       '/api': {
         target: 'https://bookapis.zapto.org',
         changeOrigin: true,
+        historyApiFallback: true,
       },
     },
     // Add history API fallback for client-side routing

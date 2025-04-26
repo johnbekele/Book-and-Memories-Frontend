@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../Context/ThemeContext';
-import NotificationModal from './NotificationModal';
 
 // Import icons
 import {
@@ -16,6 +15,7 @@ import {
   XMarkIcon,
   BellIcon,
   BellAlertIcon,
+  ChatBubbleLeftRightIcon,
 } from '@heroicons/react/24/outline';
 
 import {
@@ -26,43 +26,33 @@ import {
   UserCircleIcon as UserCircleSolid,
   BookmarkIcon as BookmarkSolid,
   BellIcon as BellSolid,
+  ChatBubbleLeftRightIcon as ChatBubbleLeftRightSolid,
 } from '@heroicons/react/24/solid';
 
-import { format } from 'date-fns';
-
-const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
+const BookSidebar = ({ onNotification, activeView }) => {
   // Use the new theme context
   const { theme, colors, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
   const [unreadNotifications, setUnreadNotifications] = useState(3); // Mock count, replace with API call
 
-  // Custom handler for notifications
-  const handleOpenNotifications = () => {
-    setNotificationModalOpen(true);
-    setUnreadNotifications(0); // Reset notification count when opening
-  };
-
-  useEffect(() => {}, [notificationModalOpen]);
-
+  // Nav items with proper paths for React Router
   const navItems = [
     {
       name: 'Home',
-      path: '#home',
+      path: '/user-dashboard',
       icon: HomeIcon,
       activeIcon: HomeSolid,
-      isCustomAction: true,
-      action: onHome,
+      isActive: activeView === 'home',
     },
     {
       name: 'Explore',
-      path: '#',
+      path: '#', // You can add a proper path here
       icon: MagnifyingGlassIcon,
       activeIcon: MagnifyingGlassSolid,
-      isCustomAction: false,
+      isActive: false,
     },
     {
       name: 'Notifications',
@@ -72,28 +62,30 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
       isCustomAction: true,
       action: onNotification,
       badge: unreadNotifications > 0 ? unreadNotifications : null,
+      isActive: false,
     },
     {
       name: 'Post',
-      path: 'books/add',
+      path: '/user-dashboard/books/add',
       icon: PlusCircleIcon,
-      activeIcon: BookmarkSolid,
-      isCustomAction: true,
-      action: openaddpage,
+      activeIcon: PlusCircleIcon,
+      isActive: activeView === 'addBook',
     },
     {
       name: 'My Library',
       path: '/user-dashboard/library',
       icon: BookOpenIcon,
       activeIcon: BookOpenSolid,
-      isCustomAction: true,
-      action: onMyLibrary,
+      isActive: activeView === 'myLibrary',
+    },
+    {
+      name: 'Chat',
+      path: '/user-dashboard/chat',
+      icon: ChatBubbleLeftRightIcon,
+      activeIcon: ChatBubbleLeftRightSolid,
+      isActive: activeView === 'chat',
     },
   ];
-
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -101,7 +93,7 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
 
   // Render nav item based on whether it's a custom action or regular link
   const renderNavItem = (item, isMobile = false) => {
-    const active = isActive(item.path);
+    const active = item.isActive;
     const Icon = active ? item.activeIcon : item.icon;
 
     // Common styles
@@ -154,6 +146,7 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
           to={item.path}
           style={commonStyles}
           className={commonClasses}
+          onClick={isMobile ? toggleMobileMenu : undefined}
         >
           <Icon
             style={iconStyles}
@@ -180,7 +173,6 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
         className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-16 border-r transition-colors duration-200 shadow-lg"
       >
         {/* Navigation Items */}
-
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
           {navItems.map((item) => renderNavItem(item))}
         </nav>
@@ -216,7 +208,6 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
                 style={{ color: colors.buttonText }}
                 className="h-8 w-8"
               />
-
               <span
                 style={{ color: colors.textColor }}
                 className="ml-2 text-xl font-bold"
@@ -235,7 +226,7 @@ const BookSidebar = ({ openaddpage, onNotification, onMyLibrary, onHome }) => {
 
           <nav className="flex-1 py-4 px-4 space-y-2 overflow-y-auto">
             {navItems.map((item) => {
-              const active = isActive(item.path);
+              const active = item.isActive;
               const Icon = active ? item.activeIcon : item.icon;
               const badge = item.badge ? (
                 <span className="ml-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
