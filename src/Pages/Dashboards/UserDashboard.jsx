@@ -10,6 +10,7 @@ import { useNotification } from '../../Hook/useNotification.js';
 import ProfilePage from '../../Components/ProfilePage.jsx';
 import { useUser } from '../../Hook/useUser.js';
 import MyLibrary from '../../Components/MyLibrary.jsx';
+import Chat from '../../Components/Chat.jsx';
 
 const AddBookPage = lazy(() => import('../UserPages/AddBookPage'));
 
@@ -59,7 +60,7 @@ function UserDashboard() {
         return <MyLibrary />;
       case 'home':
       default:
-        return <FeedPage />;
+        return <Chat />;
     }
   };
 
