@@ -22,7 +22,7 @@ const AddBookPage = lazy(() => import('../Pages/UserPages/AddBookPage'));
 const Profile = lazy(() => import('../Components/ProfilePage.jsx'));
 const FeedPage = lazy(() => import('../Pages/UserPages/FeedPage.jsx'));
 const MyLibrary = lazy(() => import('../Components/MyLibrary.jsx'));
-const Chat = lazy(() => import('../Components/Chat.jsx'));
+const ChatPage = lazy(() => import('../Pages/UserPages/ChatPage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -106,7 +106,7 @@ const InnerRoutes = () => {
           path="chat"
           element={
             <Suspense fallback={<SmallSpinner />}>
-              <Chat />
+              <ChatPage />
             </Suspense>
           }
         />

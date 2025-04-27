@@ -4,7 +4,7 @@ import LoadingSpinner from '../Components/LoadingSpinner';
 import AuthContext from '../Context/AuthContext';
 import { useLogger } from '../Hook/useLogger';
 
-const ProtectedRoute = ({ children, requiredRole }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, initialized } = useContext(AuthContext);
   const location = useLocation();
   const logger = useLogger();
@@ -48,8 +48,13 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Check access for the required role
+  // Check access based on allowedRoles (array of lowercase role names)
   let hasAccess = false;
+
+  // Convert allowedRoles to properly capitalized format for checking
+  const capitalizedAllowedRoles = allowedRoles.map(
+    (role) => role.charAt(0).toUpperCase() + role.slice(1)
+  );
 
   // Admin has access to everything
   if (user.role.Admin >= allowedRoleValues.Admin) {
@@ -59,7 +64,8 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   // Moderator has access to Moderator and User pages
   else if (
     user.role.Moderator >= allowedRoleValues.Moderator &&
-    ['Moderator', 'User'].includes(requiredRole)
+    (capitalizedAllowedRoles.includes('Moderator') ||
+      capitalizedAllowedRoles.includes('User'))
   ) {
     hasAccess = true;
     logger.log('User is a Moderator - granting access');
@@ -67,14 +73,14 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   // User has access only to User pages
   else if (
     user.role.User >= allowedRoleValues.User &&
-    requiredRole === 'User'
+    capitalizedAllowedRoles.includes('User')
   ) {
     hasAccess = true;
     logger.log('User is a regular User - granting access');
   }
 
   if (!hasAccess) {
-    logger.log(`Access denied for ${requiredRole} page`);
+    logger.log(`Access denied for ${allowedRoles.join(', ')} page`);
 
     // Get the selected role or default to highest available
     const selectedRole = localStorage.getItem('selectedRole');
@@ -99,7 +105,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
           <p className="mb-4">
             Your current role: {selectedRole || highestRole}
           </p>
-          <p className="mb-4">Required role: {requiredRole}</p>
+          <p className="mb-4">Required role: {allowedRoles.join(', ')}</p>
           <div className="flex space-x-4">
             {user.role.Admin >= allowedRoleValues.Admin && (
               <button

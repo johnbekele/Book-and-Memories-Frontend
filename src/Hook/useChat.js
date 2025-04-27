@@ -4,8 +4,10 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useContext } from 'react';
 import axios from 'axios';
 import { API_URL } from '../Config/EnvConfig';
+import AuthContext from '../Context/AuthContext';
 
 const token = () => localStorage.getItem('token');
 
@@ -29,6 +31,7 @@ const startChat = async (receiverId) => {
 
 export function useChat() {
   const queryClient = useQueryClient();
+  const { user } = useContext(AuthContext);
   const chatQuery = useQuery({
     queryKey: ['chats'],
     queryFn: fetchChats,
@@ -38,10 +41,15 @@ export function useChat() {
   const chats = chatQuery.data?.map((chat) => {
     return {
       id: chat._id,
-      participant: chat.participant, // or the "other user" info
+      participant: chat.participants.filter(
+        (participant) => participant._id !== user.id
+      ),
       lastMessage: chat.lastMessage,
     };
   });
+
+  console.log('chat info', chats);
+  console.log('user :', user);
 
   const startChatMutation = useMutation({
     mutationFn: startChat,

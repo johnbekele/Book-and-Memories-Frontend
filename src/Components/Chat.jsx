@@ -4,16 +4,17 @@ import { useMessages } from '../Hook/useMessages.js'; // Assuming we created the
 
 const ChatPage = () => {
   // const { chatId } = useParams(); // Get chatId from URL params
-  const chatId = '680dfd6ed9374ef056cfbd01';
+  const chatId = '680e1a07fb48cf4935c42079';
   const { messages, isLoading, sendMessage } = useMessages(chatId);
 
   const [messageText, setMessageText] = useState('');
 
+  // In ChatPage.jsx
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (messageText.trim()) {
-      sendMessage({ chatId, content: messageText });
-      setMessageText(''); // Clear input after sending
+      sendMessage(messageText); // Just pass the content directly
+      setMessageText('');
     }
   };
 

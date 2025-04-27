@@ -8,15 +8,30 @@ const token = () => localStorage.getItem('token');
 
 const SOCKET_URL = API_URL.split('/api')[0];
 
-console.log('Socket url', SOCKET_URL);
 // Create socket outside to not re-create every render
-const socket = io(SOCKET_URL, {
-  withCredentials: true,
-  transports: ['websocket'], // you can add fallback if needed
-});
+let socket;
+const getSocket = () => {
+  if (!socket) {
+    socket = io(SOCKET_URL, {
+      withCredentials: true,
+      transports: ['websocket'],
+    });
+
+    socket.on('connect', () => {
+      console.log('Socket connected');
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+  }
+  return socket;
+};
 
 // Fetch all messages for a chat
 const fetchMessages = async (chatId) => {
+  if (!chatId) return [];
+
   const response = await axios.get(`${API_URL}/messages/${chatId}`, {
     headers: { Authorization: `Bearer ${token()}` },
   });
@@ -37,48 +52,66 @@ const sendMessageReq = async ({ chatId, content }) => {
 
 export function useMessages(chatId) {
   const queryClient = useQueryClient();
-  const [newMessage, setNewMessage] = useState(null);
+  const [messages, setMessages] = useState([]);
 
+  // Fetch messages query
   const messageQuery = useQuery({
     queryKey: ['messages', chatId],
     queryFn: () => fetchMessages(chatId),
     enabled: !!chatId, // Only fetch when chatId exists
-    staleTime: 1 * 60 * 1000, // 1 min
-  });
-
-  const sendMessageMutation = useMutation({
-    mutationFn: sendMessageReq,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['messages', chatId]);
+    staleTime: 60000, // 1 minute
+    onSuccess: (data) => {
+      setMessages(data);
     },
   });
 
+  // Send message mutation
+  const sendMessageMutation = useMutation({
+    mutationFn: sendMessageReq,
+    onSuccess: (newMessage) => {
+      // Add message locally for immediate UI update
+      setMessages((prev) => [...prev, newMessage]);
+      // Refresh messages from server (optional)
+      // queryClient.invalidateQueries(['messages', chatId]);
+    },
+  });
+
+  // Socket connection and message handling
   useEffect(() => {
     if (!chatId) return;
 
+    const socket = getSocket();
+
+    // Join the chat room
     socket.emit('joinRoom', chatId);
 
-    socket.on('receiveMessage', (message) => {
-      setNewMessage(message);
-    });
+    // Handle incoming messages (note the correct event name)
+    const handleNewMessage = (message) => {
+      // Avoid duplicating our own messages
+      const currentUserId = localStorage.getItem('userId');
+      if (message.sender._id !== currentUserId) {
+        setMessages((prev) => [...prev, message]);
+      }
+    };
+
+    // Use the exact event name that your server is emitting
+    socket.on('reciveMessage', handleNewMessage);
 
     return () => {
       socket.emit('leaveRoom', chatId);
-      socket.off('receiveMessage');
+      socket.off('reciveMessage', handleNewMessage);
     };
   }, [chatId]);
-
-  // Add the new incoming message into existing list (optimistically)
-  const messages =
-    newMessage && messageQuery.data
-      ? [...messageQuery.data, newMessage]
-      : messageQuery.data;
 
   return {
     messages,
     isLoading: messageQuery.isLoading,
     isError: messageQuery.isError,
     error: messageQuery.error,
-    sendMessage: sendMessageMutation.mutate,
+    sendMessage: (content) => {
+      if (!content || content.trim() === '') return;
+      sendMessageMutation.mutate({ chatId, content });
+    },
+    isSending: sendMessageMutation.isPending,
   };
 }

@@ -76,7 +76,7 @@ const AuthSuccess = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h2 className="text-2xl font-semibold mb-4">
-          Hey {user.username}, we found multiple roles!
+          Hey {user.firstname}, we found multiple roles!
         </h2>
         <p className="mb-6">Please choose where you want to go:</p>
         <div className="flex gap-4">
