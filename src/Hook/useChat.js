@@ -18,6 +18,13 @@ const fetchChats = async () => {
   return response.data;
 };
 
+const fetchAllUsers = async () => {
+  const response = await axios.get(`${API_URL}/auth/users`, {
+    headers: { Authorization: `Bearer ${getToken()}` },
+  });
+  return response.data;
+};
+
 const startChat = async (receiverId) => {
   const response = await axios.post(
     `${API_URL}/chat/start`,
@@ -38,18 +45,34 @@ export function useChat() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Query for fetching all users
+  const usersQuery = useQuery({
+    queryKey: ['users'],
+    queryFn: fetchAllUsers,
+    staleTime: 5 * 60 * 1000, // Cache user data for 5 minutes
+  });
+  const users = usersQuery.data || [];
   const chats = chatQuery.data?.map((chat) => {
+    const participants = chat.participants
+      .filter((participant) => participant._id !== user.id)
+      .map((participant) => {
+        const userData = users.find((u) => u._id === participant._id);
+        return {
+          _id: participant._id,
+          username: userData?.firstname + ' ' + userData?.lastname,
+          email: userData?.email,
+          photo: userData?.photo || 'no photo', // assuming photo exists in user
+        };
+      });
+
     return {
-      id: chat._id,
-      participant: chat.participants.filter(
-        (participant) => participant._id !== user.id
-      ),
-      lastMessage: chat.lastMessage,
+      _id: chat._id,
+      username: participants[0]?.username,
+      lastMessage: chat.lastMessage.content,
+      avatar: participants[0]?.photo,
+      updatedAt: new Date(),
     };
   });
-
-  console.log('chat info', chats);
-  console.log('user :', user);
 
   const startChatMutation = useMutation({
     mutationFn: startChat,
