@@ -8,12 +8,10 @@ const ChatPage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [searchText, setSearchText] = useState('');
-  const { chats, isError } = useChat();
+  const { chats, isError: chatError } = useChat();
 
-  console.log('chat', chats);
-  const { messages, isLoading, sendMessage, isSending, isOnline } = useMessages(
-    selectedChat?._id || ''
-  );
+  const { messages, isLoading, sendMessage, isSending, isUserOnline } =
+    useMessages(selectedChat?._id || '');
 
   const filteredChats =
     searchText.trim() === ''
@@ -43,9 +41,11 @@ const ChatPage = () => {
         selectedChat={selectedChat}
         messages={messages}
         isLoading={isLoading}
+        isSending={isSending}
         messageText={messageText}
         onMessageChange={setMessageText}
         onSendMessage={handleSendMessage}
+        isOnline={selectedChat ? isUserOnline(selectedChat.userId) : false}
       />
     </div>
   );

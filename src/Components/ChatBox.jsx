@@ -1,19 +1,69 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useContext } from 'react';
+import AuthContext from '../Context/AuthContext';
 
 const ChatBox = ({
   selectedChat,
   messages,
   isLoading,
+  isSending,
   messageText,
   onMessageChange,
   onSendMessage,
+  isOnline,
 }) => {
   const messagesEndRef = useRef(null);
-  const currentUserId = localStorage.getItem('userId') || 'current_user';
-
+  const { user } = useContext(AuthContext);
+  const currentUserId = user.id;
+  console.log('the current user', currentUserId);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Group messages by sender and time
+  const groupMessages = (messages) => {
+    const groups = [];
+    let currentGroup = null;
+
+    messages.forEach((message) => {
+      const isCurrentUser = message.sender._id === currentUserId;
+
+      // Start a new group if:
+      // 1. No current group exists
+      // 2. Sender changed (from me to them or vice versa)
+      // 3. Time gap is more than 5 minutes from last message
+      if (
+        !currentGroup ||
+        currentGroup.isCurrentUser !== isCurrentUser ||
+        new Date(message.createdAt) -
+          new Date(
+            currentGroup.messages[currentGroup.messages.length - 1].createdAt
+          ) >
+          5 * 60 * 1000
+      ) {
+        if (currentGroup) {
+          groups.push(currentGroup);
+        }
+
+        currentGroup = {
+          isCurrentUser,
+          senderId: message.sender._id,
+          senderName: message.sender.username || 'User',
+          senderAvatar: message.sender.avatar || '/default-avatar.png',
+          messages: [message],
+        };
+      } else {
+        // Add to existing group
+        currentGroup.messages.push(message);
+      }
+    });
+
+    // Add the last group if it exists
+    if (currentGroup) {
+      groups.push(currentGroup);
+    }
+
+    return groups;
+  };
 
   if (!selectedChat) {
     return (
@@ -45,6 +95,8 @@ const ChatBox = ({
     );
   }
 
+  const messageGroups = groupMessages(messages);
+
   return (
     <div className="flex-1 flex flex-col">
       {/* Chat Header */}
@@ -60,7 +112,7 @@ const ChatBox = ({
           <div className="ml-3">
             <h3 className="font-semibold text-sm">{selectedChat.username}</h3>
             <p className="text-xs text-gray-500">
-              {selectedChat.isOnline ? 'Active now' : 'Active recently'}
+              {isOnline ? 'Active now' : 'Active recently'}
             </p>
           </div>
         </div>
@@ -73,25 +125,118 @@ const ChatBox = ({
             <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
           </div>
         ) : messages && messages.length > 0 ? (
-          <div className="space-y-3">
-            {messages.map((message) => (
+          <div className="space-y-6">
+            {messageGroups.map((group, groupIndex) => (
               <div
-                key={message._id}
+                key={`group-${groupIndex}`}
                 className={`flex ${
-                  message.sender._id === currentUserId
-                    ? 'justify-end'
-                    : 'justify-start'
+                  group.isCurrentUser ? 'justify-end' : 'justify-start'
                 }`}
               >
-                <div
-                  className={`py-2 px-3 rounded-2xl max-w-xs break-words ${
-                    message.sender._id === currentUserId
-                      ? 'bg-blue-500 text-white rounded-br-none'
-                      : 'bg-gray-100 text-gray-800 rounded-bl-none'
-                  }`}
-                >
-                  <p className="text-sm">{message.content}</p>
+                {/* Avatar for other user's messages */}
+                {!group.isCurrentUser && (
+                  <div className="h-8 w-8 rounded-full overflow-hidden mr-2 self-end">
+                    <img
+                      src={group.senderAvatar}
+                      alt={group.senderName}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Message group */}
+                <div className="max-w-[70%]">
+                  {/* Display name for other users */}
+                  {!group.isCurrentUser && (
+                    <p className="text-xs text-gray-500 mb-1 ml-1">
+                      {group.senderName}
+                    </p>
+                  )}
+
+                  {/* Messages */}
+                  <div className="space-y-1">
+                    {group.messages.map((message, messageIndex) => {
+                      // Determine which message in the group gets special styling
+                      const isFirst = messageIndex === 0;
+                      const isLast = messageIndex === group.messages.length - 1;
+
+                      // Tailwind classes for message bubbles
+                      let bubbleClasses = 'py-2 px-3 break-words';
+
+                      if (group.isCurrentUser) {
+                        // Current user's messages (right side)
+                        bubbleClasses += ' bg-blue-500 text-white shadow-md';
+
+                        if (group.messages.length === 1) {
+                          bubbleClasses += ' rounded-2xl rounded-br-none';
+                        } else if (isFirst) {
+                          bubbleClasses +=
+                            ' rounded-t-2xl rounded-bl-2xl rounded-br-none';
+                        } else if (isLast) {
+                          bubbleClasses +=
+                            ' rounded-b-2xl rounded-bl-2xl rounded-br-none';
+                        } else {
+                          bubbleClasses += ' rounded-l-2xl';
+                        }
+                      } else {
+                        // Other user's messages (left side)
+                        bubbleClasses += ' bg-gray-100 text-gray-800 shadow';
+
+                        if (group.messages.length === 1) {
+                          bubbleClasses += ' rounded-2xl rounded-bl-none';
+                        } else if (isFirst) {
+                          bubbleClasses +=
+                            ' rounded-t-2xl rounded-br-2xl rounded-bl-none';
+                        } else if (isLast) {
+                          bubbleClasses +=
+                            ' rounded-b-2xl rounded-br-2xl rounded-bl-none';
+                        } else {
+                          bubbleClasses += ' rounded-r-2xl';
+                        }
+                      }
+
+                      return (
+                        <div
+                          key={
+                            message._id ||
+                            `temp-message-${groupIndex}-${messageIndex}`
+                          }
+                        >
+                          <div className={bubbleClasses}>
+                            <p className="text-sm">
+                              {message.objectcontent || message.content}
+                            </p>
+                          </div>
+
+                          {/* Show timestamp on last message of group */}
+                          {isLast && (
+                            <p
+                              className={`text-xs text-gray-500 mt-1 ${
+                                group.isCurrentUser ? 'text-right mr-1' : 'ml-1'
+                              }`}
+                            >
+                              {new Date(message.createdAt).toLocaleTimeString(
+                                [],
+                                { hour: '2-digit', minute: '2-digit' }
+                              )}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
+
+                {/* Only show avatar for current user if needed - removed as per request */}
+                {/* {group.isCurrentUser && (
+                  <div className="h-8 w-8 rounded-full overflow-hidden ml-2 self-end">
+                    <img
+                      src="/user-avatar.png"
+                      alt="You"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                )} */}
               </div>
             ))}
             <div ref={messagesEndRef} />
@@ -110,12 +255,16 @@ const ChatBox = ({
             value={messageText}
             onChange={(e) => onMessageChange(e.target.value)}
             className="flex-1 py-2 px-3 rounded-full bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm"
+            disabled={isSending}
           />
           <button
             type="submit"
-            className="ml-3 text-blue-500 font-semibold text-sm hover:text-blue-700"
+            className={`ml-3 font-semibold text-sm ${
+              isSending ? 'text-gray-400' : 'text-blue-500 hover:text-blue-700'
+            }`}
+            disabled={isSending}
           >
-            Send
+            {isSending ? 'Sending...' : 'Send'}
           </button>
         </form>
       </div>
