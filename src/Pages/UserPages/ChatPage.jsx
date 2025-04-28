@@ -9,6 +9,8 @@ const ChatPage = () => {
   const [messageText, setMessageText] = useState('');
   const [searchText, setSearchText] = useState('');
   const { chats, isError } = useChat();
+
+  console.log('chat', chats);
   const { messages, isLoading, sendMessage, isSending, isOnline } = useMessages(
     selectedChat?._id || ''
   );
