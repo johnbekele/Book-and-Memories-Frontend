@@ -1,24 +1,36 @@
-import React, { useRef, useEffect, useContext } from 'react';
+import React, { useRef, useEffect, useContext, useState } from 'react';
 import AuthContext from '../Context/AuthContext';
 import { useTheme } from '../Context/ThemeContext';
 
 const ChatBox = ({
   selectedChat,
-  messages,
+  messages = [], // Add default empty array
   isLoading,
   isSending,
   messageText,
   onMessageChange,
   onSendMessage,
   isOnline,
+  onBackClick, // Add back button handler for mobile view
 }) => {
   const messagesEndRef = useRef(null);
   const { user } = useContext(AuthContext);
   const { theme, colors } = useTheme();
   const isDark = theme === 'dark';
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Get current user ID from the auth context
   const currentUserId = user?.id;
+
+  // Handle window resize to detect mobile view
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -26,10 +38,18 @@ const ChatBox = ({
 
   // Group messages by sender and time
   const groupMessages = (messages) => {
+    if (!Array.isArray(messages)) return [];
+
     const groups = [];
     let currentGroup = null;
 
     messages.forEach((message) => {
+      // Skip invalid message objects
+      if (!message || !message.sender) {
+        console.warn('Invalid message object:', message);
+        return;
+      }
+
       // Debug message sender ID
       console.log(
         `Message from ${message.sender.username}, sender ID: ${message.sender._id}, current user ID: ${currentUserId}`
@@ -44,6 +64,7 @@ const ChatBox = ({
       if (
         !currentGroup ||
         currentGroup.isCurrentUser !== isCurrentUser ||
+        !currentGroup.messages.length ||
         new Date(message.createdAt) -
           new Date(
             currentGroup.messages[currentGroup.messages.length - 1].createdAt
@@ -53,12 +74,12 @@ const ChatBox = ({
         if (currentGroup) {
           groups.push(currentGroup);
         }
-
+        console.log('message', message);
         currentGroup = {
           isCurrentUser,
           senderId: message.sender._id,
           senderName: message.sender.username || 'User',
-          senderAvatar: message.sender.avatar || '/default-avatar.png',
+          senderAvatar: message.sender.photo || '/default-avatar.png',
           messages: [message],
         };
       } else {
@@ -107,11 +128,15 @@ const ChatBox = ({
     );
   }
 
-  const messageGroups = groupMessages(messages);
+  const messageGroups = groupMessages(messages || []);
+
+  console.log('slected chat', messageGroups);
 
   return (
     <div
-      className="flex-1 flex flex-col h-full"
+      className={`flex-1 flex flex-col h-full ${
+        isMobile ? 'fixed inset-0 z-50' : ''
+      }`}
       style={{
         backgroundColor: isDark ? colors.backgroundColor : '#ffffff',
         color: isDark ? colors.textColor : '#1f2937',
@@ -123,6 +148,28 @@ const ChatBox = ({
         style={{ backgroundColor: isDark ? colors.cardBackground : '#ffffff' }}
       >
         <div className="flex items-center">
+          {/* Back button for mobile */}
+          {isMobile && (
+            <button
+              onClick={onBackClick}
+              className="mr-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+          )}
           <div className="h-8 w-8 rounded-full overflow-hidden">
             <img
               src={selectedChat.avatar || '/default-avatar.png'}
@@ -137,6 +184,28 @@ const ChatBox = ({
             </p>
           </div>
         </div>
+
+        {/* Mobile-specific action buttons */}
+        {isMobile && (
+          <div className="flex items-center">
+            <button className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Messages */}
@@ -169,7 +238,11 @@ const ChatBox = ({
                 )}
 
                 {/* Message group */}
-                <div className="max-w-[75%] md:max-w-[70%]">
+                <div
+                  className={`${
+                    isMobile ? 'max-w-[80%]' : 'max-w-[75%] md:max-w-[70%]'
+                  }`}
+                >
                   {/* Display name for other users */}
                   {!group.isCurrentUser && (
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">
@@ -224,6 +297,13 @@ const ChatBox = ({
                         }
                       }
 
+                      // Safely get message content
+                      console.log('message content', message.content);
+                      const messageContent =
+                        (message &&
+                          (message.objectcontent || message.content)) ||
+                        ''; // Default to empty string if both are undefined
+
                       return (
                         <div
                           key={
@@ -232,7 +312,7 @@ const ChatBox = ({
                           }
                         >
                           <div className={bubbleClasses}>
-                            <p>{message.objectcontent || message.content}</p>
+                            <p>{messageContent}</p>
                           </div>
 
                           {/* Show timestamp on last message of group */}
@@ -242,10 +322,12 @@ const ChatBox = ({
                                 group.isCurrentUser ? 'text-right mr-1' : 'ml-1'
                               }`}
                             >
-                              {new Date(message.createdAt).toLocaleTimeString(
-                                [],
-                                { hour: '2-digit', minute: '2-digit' }
-                              )}
+                              {new Date(
+                                message.createdAt || Date.now()
+                              ).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
                             </p>
                           )}
                         </div>
@@ -270,6 +352,29 @@ const ChatBox = ({
         style={{ backgroundColor: isDark ? colors.cardBackground : '#ffffff' }}
       >
         <form onSubmit={onSendMessage} className="flex items-center">
+          {/* Mobile emoji button */}
+          {isMobile && (
+            <button
+              type="button"
+              className="mr-2 text-gray-500 dark:text-gray-400"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+          )}
+
           <input
             type="text"
             placeholder="Message..."
@@ -281,6 +386,30 @@ const ChatBox = ({
               backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : '#f3f4f6',
             }}
           />
+
+          {/* Mobile attachment button */}
+          {isMobile && (
+            <button
+              type="button"
+              className="ml-2 text-gray-500 dark:text-gray-400"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+                />
+              </svg>
+            </button>
+          )}
+
           <button
             type="submit"
             className={`ml-3 font-semibold text-sm ${
