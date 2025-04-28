@@ -4,14 +4,14 @@ import { useTheme } from '../Context/ThemeContext';
 
 const ChatBox = ({
   selectedChat,
-  messages = [], // Add default empty array
+  messages = [], // default empty array
   isLoading,
   isSending,
   messageText,
   onMessageChange,
   onSendMessage,
   isOnline,
-  onBackClick, // Add back button handler for mobile view
+  onBackClick,
 }) => {
   const messagesEndRef = useRef(null);
   const { user } = useContext(AuthContext);
@@ -19,7 +19,6 @@ const ChatBox = ({
   const isDark = theme === 'dark';
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Get current user ID from the auth context
   const currentUserId = user?.id;
 
   // Handle window resize to detect mobile view
@@ -98,33 +97,38 @@ const ChatBox = ({
 
   if (!selectedChat) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-6 flex-1">
-        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-gray-200 flex items-center justify-center mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-10 w-10 md:h-12 md:w-12 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-            />
-          </svg>
-        </div>
-        <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200">
-          Your Messages
-        </h2>
-        <p className="text-gray-500 dark:text-gray-400 mt-2 mb-4 md:mb-6 max-w-sm text-sm md:text-base">
-          Send private photos and messages to a friend or group
-        </p>
-        <button className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition text-sm md:text-base">
-          Send Message
-        </button>
-      </div>
+      <>
+        {' '}
+        {!isMobile && (
+          <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-6 flex-1">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-gray-200 flex items-center justify-center mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-10 w-10 md:h-12 md:w-12 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200">
+              Your Messages
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 mb-4 md:mb-6 max-w-sm text-sm md:text-base">
+              Send private photos and messages to a friend or group
+            </p>
+            <button className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition text-sm md:text-base">
+              Send Message
+            </button>
+          </div>
+        )}
+      </>
     );
   }
 
@@ -148,10 +152,9 @@ const ChatBox = ({
         style={{ backgroundColor: isDark ? colors.cardBackground : '#ffffff' }}
       >
         <div className="flex items-center">
-          {/* Back button for mobile */}
           {isMobile && (
             <button
-              onClick={onBackClick}
+              onClick={() => onBackClick()} // Simplified to just call the function
               className="mr-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
             >
               <svg

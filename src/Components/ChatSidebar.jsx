@@ -21,6 +21,9 @@ const formatTime = (date) => {
 };
 
 // Separated ChatListItem as its own component with memoization
+// In ChatSidebar.jsx
+// Remove the onBackClick prop from ChatListItem since it doesn't need it
+
 const ChatListItem = React.memo(
   ({ chat, selected, onSelect, isDark, colors }) => {
     // Only use the isUserOnline function from useMessages
@@ -29,7 +32,9 @@ const ChatListItem = React.memo(
     // Check if this specific user is online
     const isOnline = isUserOnline(chat.userId);
 
-    const handleClick = () => onSelect(chat);
+    const handleClick = () => {
+      onSelect(chat);
+    };
 
     return (
       <div
@@ -105,6 +110,7 @@ const ChatSidebar = ({
   onSelectChat,
   isMobileView,
   onNewChatClick,
+  onBackClick,
 }) => {
   const { theme, colors } = useTheme();
   const isDark = theme === 'dark';
@@ -223,6 +229,7 @@ const ChatSidebar = ({
                 chat={chat}
                 selected={selectedChat?._id === chat._id}
                 onSelect={onSelectChat}
+                onBackClick={onBackClick}
                 isDark={isDark}
                 colors={colors}
               />
