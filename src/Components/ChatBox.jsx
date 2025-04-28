@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useContext } from 'react';
 import AuthContext from '../Context/AuthContext';
+import { useTheme } from '../Context/ThemeContext';
 
 const ChatBox = ({
   selectedChat,
@@ -13,8 +14,12 @@ const ChatBox = ({
 }) => {
   const messagesEndRef = useRef(null);
   const { user } = useContext(AuthContext);
-  const currentUserId = user.id;
-  console.log('the current user', currentUserId);
+  const { theme, colors } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Get current user ID from the auth context
+  const currentUserId = user?.id;
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -25,6 +30,11 @@ const ChatBox = ({
     let currentGroup = null;
 
     messages.forEach((message) => {
+      // Debug message sender ID
+      console.log(
+        `Message from ${message.sender.username}, sender ID: ${message.sender._id}, current user ID: ${currentUserId}`
+      );
+
       const isCurrentUser = message.sender._id === currentUserId;
 
       // Start a new group if:
@@ -67,11 +77,11 @@ const ChatBox = ({
 
   if (!selectedChat) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-center p-6 flex-1">
-        <div className="w-24 h-24 rounded-full border-2 border-gray-200 flex items-center justify-center mb-4">
+      <div className="flex flex-col items-center justify-center h-full text-center p-4 md:p-6 flex-1">
+        <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-gray-200 flex items-center justify-center mb-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-12 w-12 text-gray-400"
+            className="h-10 w-10 md:h-12 md:w-12 text-gray-400"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -84,11 +94,13 @@ const ChatBox = ({
             />
           </svg>
         </div>
-        <h2 className="text-xl font-semibold text-gray-800">Your Messages</h2>
-        <p className="text-gray-500 mt-2 mb-6 max-w-sm">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-gray-200">
+          Your Messages
+        </h2>
+        <p className="text-gray-500 dark:text-gray-400 mt-2 mb-4 md:mb-6 max-w-sm text-sm md:text-base">
           Send private photos and messages to a friend or group
         </p>
-        <button className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition">
+        <button className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition text-sm md:text-base">
           Send Message
         </button>
       </div>
@@ -98,20 +110,29 @@ const ChatBox = ({
   const messageGroups = groupMessages(messages);
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div
+      className="flex-1 flex flex-col h-full"
+      style={{
+        backgroundColor: isDark ? colors.backgroundColor : '#ffffff',
+        color: isDark ? colors.textColor : '#1f2937',
+      }}
+    >
       {/* Chat Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+      <div
+        className="p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
+        style={{ backgroundColor: isDark ? colors.cardBackground : '#ffffff' }}
+      >
         <div className="flex items-center">
           <div className="h-8 w-8 rounded-full overflow-hidden">
             <img
-              src={selectedChat.avatar}
+              src={selectedChat.avatar || '/default-avatar.png'}
               alt={selectedChat.username}
               className="h-full w-full object-cover"
             />
           </div>
           <div className="ml-3">
             <h3 className="font-semibold text-sm">{selectedChat.username}</h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {isOnline ? 'Active now' : 'Active recently'}
             </p>
           </div>
@@ -119,13 +140,16 @@ const ChatBox = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 p-4 overflow-y-auto bg-white">
+      <div
+        className="flex-1 p-3 md:p-4 overflow-y-auto"
+        style={{ backgroundColor: isDark ? colors.backgroundColor : '#ffffff' }}
+      >
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
           </div>
         ) : messages && messages.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {messageGroups.map((group, groupIndex) => (
               <div
                 key={`group-${groupIndex}`}
@@ -135,7 +159,7 @@ const ChatBox = ({
               >
                 {/* Avatar for other user's messages */}
                 {!group.isCurrentUser && (
-                  <div className="h-8 w-8 rounded-full overflow-hidden mr-2 self-end">
+                  <div className="h-7 w-7 md:h-8 md:w-8 rounded-full overflow-hidden mr-2 self-end flex-shrink-0">
                     <img
                       src={group.senderAvatar}
                       alt={group.senderName}
@@ -145,10 +169,10 @@ const ChatBox = ({
                 )}
 
                 {/* Message group */}
-                <div className="max-w-[70%]">
+                <div className="max-w-[75%] md:max-w-[70%]">
                   {/* Display name for other users */}
                   {!group.isCurrentUser && (
-                    <p className="text-xs text-gray-500 mb-1 ml-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 ml-1">
                       {group.senderName}
                     </p>
                   )}
@@ -161,11 +185,13 @@ const ChatBox = ({
                       const isLast = messageIndex === group.messages.length - 1;
 
                       // Tailwind classes for message bubbles
-                      let bubbleClasses = 'py-2 px-3 break-words';
+                      let bubbleClasses = 'py-2 px-3 break-words text-sm';
 
                       if (group.isCurrentUser) {
                         // Current user's messages (right side)
-                        bubbleClasses += ' bg-blue-500 text-white shadow-md';
+                        bubbleClasses += ' bg-blue-500 text-white';
+                        // Add shadow for current user's messages (blue tint)
+                        bubbleClasses += ' shadow-md';
 
                         if (group.messages.length === 1) {
                           bubbleClasses += ' rounded-2xl rounded-br-none';
@@ -180,7 +206,10 @@ const ChatBox = ({
                         }
                       } else {
                         // Other user's messages (left side)
-                        bubbleClasses += ' bg-gray-100 text-gray-800 shadow';
+                        bubbleClasses +=
+                          ' bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
+                        // Add shadow for other users' messages (light gray)
+                        bubbleClasses += ' shadow';
 
                         if (group.messages.length === 1) {
                           bubbleClasses += ' rounded-2xl rounded-bl-none';
@@ -203,15 +232,13 @@ const ChatBox = ({
                           }
                         >
                           <div className={bubbleClasses}>
-                            <p className="text-sm">
-                              {message.objectcontent || message.content}
-                            </p>
+                            <p>{message.objectcontent || message.content}</p>
                           </div>
 
                           {/* Show timestamp on last message of group */}
                           {isLast && (
                             <p
-                              className={`text-xs text-gray-500 mt-1 ${
+                              className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${
                                 group.isCurrentUser ? 'text-right mr-1' : 'ml-1'
                               }`}
                             >
@@ -226,41 +253,40 @@ const ChatBox = ({
                     })}
                   </div>
                 </div>
-
-                {/* Only show avatar for current user if needed - removed as per request */}
-                {/* {group.isCurrentUser && (
-                  <div className="h-8 w-8 rounded-full overflow-hidden ml-2 self-end">
-                    <img
-                      src="/user-avatar.png"
-                      alt="You"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                )} */}
               </div>
             ))}
             <div ref={messagesEndRef} />
           </div>
         ) : (
-          <div className="text-center text-gray-500">No messages yet</div>
+          <div className="text-center text-gray-500 dark:text-gray-400">
+            No messages yet
+          </div>
         )}
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-200">
+      <div
+        className="p-3 md:p-4 border-t border-gray-200 dark:border-gray-700"
+        style={{ backgroundColor: isDark ? colors.cardBackground : '#ffffff' }}
+      >
         <form onSubmit={onSendMessage} className="flex items-center">
           <input
             type="text"
             placeholder="Message..."
             value={messageText}
             onChange={(e) => onMessageChange(e.target.value)}
-            className="flex-1 py-2 px-3 rounded-full bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-300 text-sm"
+            className="flex-1 py-2 px-3 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 text-sm"
             disabled={isSending}
+            style={{
+              backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : '#f3f4f6',
+            }}
           />
           <button
             type="submit"
             className={`ml-3 font-semibold text-sm ${
-              isSending ? 'text-gray-400' : 'text-blue-500 hover:text-blue-700'
+              isSending
+                ? 'text-gray-400 dark:text-gray-500'
+                : 'text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300'
             }`}
             disabled={isSending}
           >
