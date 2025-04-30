@@ -16,6 +16,8 @@ import {
 } from '@heroicons/react/24/outline';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
+import { IoPaperPlaneOutline } from 'react-icons/io5';
+import { FiSend } from 'react-icons/fi';
 
 const UserNavBar = ({ fromwhere, onNotification, onProfile, onHome }) => {
   const { user, logout, setActiveRole } = useContext(AuthContext); // Added setActiveRole
@@ -23,7 +25,9 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile, onHome }) => {
   const logger = useLogger();
   const { theme, toggleTheme, colors } = useTheme();
   const isdark = theme === 'dark';
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  console.log('ismobile from navbar', isMobile);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -69,13 +73,32 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile, onHome }) => {
         <div className="spacer"></div>
 
         {/* Welcome text and profile at the right edge */}
-        <div className="user-wrapper">
+        {isMobile ? (
+          <div className="mobile-message-container">
+            <motion.button
+              className="message-icon-button"
+              onClick={() => navigate('/user-dashboard/chat')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Messages"
+            >
+              <FiSend
+                size={24}
+                style={{ transform: 'rotate(-23deg)' }}
+                color={colors.textColor}
+              />
+            </motion.button>
+          </div>
+        ) : (
           <div className="welcome-section">
             <p className="welcome-text">
               Welcome{' '}
               <span className="user-name">{user?.firstname || 'User'}</span>!
             </p>
           </div>
+        )}
+        <div className="user-wrapper">
+          <div className="welcome-section"></div>
 
           <div className="user-section" ref={dropdownRef}>
             <motion.button
@@ -521,6 +544,42 @@ const StyledNavbar = styled.nav`
   @media (max-width: 640px) {
     .welcome-section {
       display: none;
+    }
+
+    .logo-text {
+      font-size: 1.1rem;
+    }
+
+    .dropdown-menu {
+      width: 12rem;
+      right: -0.5rem;
+    }
+  }
+  .mobile-message-container {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+  }
+
+  .message-icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${(props) => props.colors.textColor};
+  }
+
+  @media (max-width: 640px) {
+    .welcome-section {
+      display: none;
+    }
+
+    /* Make sure the mobile message container is visible */
+    .mobile-message-container {
+      display: flex;
     }
 
     .logo-text {
