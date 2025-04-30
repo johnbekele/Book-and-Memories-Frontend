@@ -383,10 +383,17 @@ const ChatBox = ({
             placeholder="Message..."
             value={messageText}
             onChange={(e) => onMessageChange(e.target.value)}
-            className="flex-1 py-2 px-3 rounded-full bg-gray-100 dark:bg-gray-700 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 text-sm"
+            className="flex-1 py-2 px-3 rounded-full bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 text-sm"
             disabled={isSending}
             style={{
-              backgroundColor: isDark ? 'rgba(55, 65, 81, 0.5)' : '#f3f4f6',
+              backgroundColor: isDark ? colors.cardBackground : '#f3f4f6',
+              color: isDark ? colors.textColor : '#374151',
+              borderColor: isDark ? colors.borderColor : '#e5e7eb',
+              '::placeholder': {
+                color: isDark
+                  ? 'rgba(156, 163, 175, 0.8)'
+                  : 'rgba(107, 114, 128, 0.8)',
+              },
             }}
           />
 
