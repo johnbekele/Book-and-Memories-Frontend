@@ -10,7 +10,7 @@ const fetchPosts = async () => {
   const response = await axios.get(`${API_URL}/posts`, {
     headers: { Authorization: `Bearer ${getToken()}` },
   });
-  return response.data;
+  return response.data.reverse();
 };
 
 const fetchAllUsers = async () => {
