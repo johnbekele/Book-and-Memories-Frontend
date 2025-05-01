@@ -4,7 +4,7 @@ import axios from 'axios';
 import { API_URL } from '../Config/EnvConfig';
 import { io } from 'socket.io-client';
 
-// Constants
+// Constants and helpers
 const SOCKET_URL = API_URL.split('/api')[0];
 const getToken = () => localStorage.getItem('token');
 const getCurrentUserId = () => localStorage.getItem('userId');
@@ -70,40 +70,47 @@ const messagesApi = {
   },
 };
 
-// Ensure messages have unique IDs and valid structure
+// Process messages to ensure valid structure and content
 const processMessages = (messages = [], users = []) => {
   if (!Array.isArray(messages)) return [];
 
   const seen = new Set();
   return messages
     .filter((message) => {
-      // Validate message structure
       if (!message || typeof message !== 'object') return false;
-
-      // Handle messages without IDs
       if (!message._id) return true;
-
-      // Filter duplicates
       if (seen.has(message._id)) return false;
       seen.add(message._id);
       return true;
     })
     .map((message) => {
-      // If we have a sender and users data, enhance the sender info
-      if (message.sender && message.sender._id && users.length > 0) {
-        const userData = users.find((user) => user._id === message.sender._id);
+      // Ensure message content is never undefined
+      const processedMessage = {
+        ...message,
+        content: message.content || message.objectcontent || '',
+      };
+
+      // Enhance sender info if available
+      if (
+        processedMessage.sender &&
+        processedMessage.sender._id &&
+        users.length > 0
+      ) {
+        const userData = users.find(
+          (user) => user._id === processedMessage.sender._id
+        );
         if (userData) {
           return {
-            ...message,
+            ...processedMessage,
             sender: {
-              ...message.sender,
+              ...processedMessage.sender,
               username: `${userData.firstname} ${userData.lastname}`,
               photo: userData.photo || 'default-avatar.png',
             },
           };
         }
       }
-      return message;
+      return processedMessage;
     });
 };
 
@@ -112,6 +119,7 @@ export function useMessages(chatId) {
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const listenersRef = useRef({});
   const currentUserId = getCurrentUserId();
+  const isPendingChat = chatId?.startsWith('pending_');
 
   // Fetch users for mapping
   const { data: users = [] } = useQuery({
@@ -130,52 +138,67 @@ export function useMessages(chatId) {
   } = useQuery({
     queryKey: ['messages', chatId],
     queryFn: () => messagesApi.fetchMessages(chatId),
-    enabled: Boolean(chatId),
+    enabled: Boolean(chatId) && !isPendingChat,
     staleTime: 60000,
   });
 
-  // Process messages to ensure they're valid and unique, and map user data
+  // Process messages
   const messages = processMessages(rawMessages, users);
 
   // Send message mutation
   const {
-    mutate: sendMessage,
+    mutate: sendMessageMutation,
     isPending: isSending,
     isError: isSendError,
     error: sendError,
   } = useMutation({
-    mutationFn: (content) => messagesApi.sendMessage({ chatId, content }),
-    onSuccess: (newMessage) => {
+    mutationFn: ({ content, targetChatId }) =>
+      messagesApi.sendMessage({
+        chatId: targetChatId || chatId,
+        content,
+      }),
+    onSuccess: (newMessage, { targetChatId }) => {
       if (!newMessage || typeof newMessage !== 'object') return;
 
-      queryClient.setQueryData(['messages', chatId], (oldData = []) => {
+      // Use the target chat ID or fallback to current chatId
+      const messageChatId = targetChatId || chatId;
+
+      queryClient.setQueryData(['messages', messageChatId], (oldData = []) => {
         const processedData = processMessages(oldData, users);
 
         // Check if message already exists
         const exists = processedData.some((m) => m._id === newMessage._id);
         if (exists) return processedData;
 
-        // Process the new message with user data
+        // Process the new message
         const enhancedMessage = processMessages([newMessage], users)[0];
         return [...processedData, enhancedMessage];
       });
+
+      // Invalidate chats query to update last message
+      queryClient.invalidateQueries(['chats']);
     },
   });
 
-  // Handle sending a message with validation
+  // Send message handler
   const handleSendMessage = useCallback(
-    (content) => {
-      if (!content || content.trim() === '' || !chatId) return;
-      sendMessage(content);
+    async (content, overrideChatId = null) => {
+      if (!content || content.trim() === '') return;
+
+      const targetChatId = overrideChatId || chatId;
+      if (!targetChatId || (isPendingChat && !overrideChatId)) return;
+
+      return await sendMessageMutation({
+        content,
+        targetChatId,
+      });
     },
-    [chatId, sendMessage]
+    [chatId, isPendingChat, sendMessageMutation]
   );
 
-  // Check if a user is online
+  // Check if user is online
   const isUserOnline = useCallback(
-    (userId) => {
-      return onlineUsers.has(userId);
-    },
+    (userId) => onlineUsers.has(userId),
     [onlineUsers]
   );
 
@@ -198,17 +221,14 @@ export function useMessages(chatId) {
       }
     };
 
-    // Clean up previous listeners if they exist
     cleanup();
 
-    // Message handler with validation
+    // Message handler
     const messageHandler = (message) => {
       if (!message || typeof message !== 'object' || !message.sender) {
         console.warn('Received invalid message format:', message);
         return;
       }
-
-      console.log('Received message:', message);
 
       // Only update if the message is from someone else
       if (message.sender._id !== currentUserId) {
@@ -219,7 +239,7 @@ export function useMessages(chatId) {
           const exists = processedData.some((m) => m._id === message._id);
           if (exists) return processedData;
 
-          // Process the new message with user data
+          // Process the new message
           const enhancedMessage = processMessages([message], users)[0];
           return [...processedData, enhancedMessage];
         });
@@ -242,10 +262,7 @@ export function useMessages(chatId) {
     };
 
     const usersHandler = (users) => {
-      if (!Array.isArray(users)) {
-        console.warn('Received invalid users format:', users);
-        return;
-      }
+      if (!Array.isArray(users)) return;
       setOnlineUsers(new Set(users.filter((id) => typeof id === 'string')));
     };
 
@@ -269,23 +286,17 @@ export function useMessages(chatId) {
   }, [chatId, currentUserId, queryClient, users]);
 
   return {
-    // Data (with safe defaults)
     messages: messages || [],
     onlineUsers: Array.from(onlineUsers),
-
-    // Status
     isLoading,
     isError,
     error,
     isSending,
     isSendError,
     sendError,
-
-    // Actions
+    isPendingChat,
     sendMessage: handleSendMessage,
     refreshMessages: refetch,
-
-    // Utilities
     isUserOnline,
   };
 }

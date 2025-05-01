@@ -4,7 +4,7 @@ import { useTheme } from '../Context/ThemeContext';
 
 const ChatBox = ({
   selectedChat,
-  messages = [], // default empty array
+  messages = [],
   isLoading,
   isSending,
   messageText,
@@ -18,6 +18,7 @@ const ChatBox = ({
   const { theme, colors } = useTheme();
   const isDark = theme === 'dark';
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const isPendingChat = selectedChat?.isPending;
 
   const currentUserId = user?.id;
 
@@ -134,8 +135,6 @@ const ChatBox = ({
 
   const messageGroups = groupMessages(messages || []);
 
-  console.log('slected chat', messageGroups);
-
   return (
     <div
       className={`flex-1 flex flex-col h-full ${
@@ -154,7 +153,7 @@ const ChatBox = ({
         <div className="flex items-center">
           {isMobile && (
             <button
-              onClick={() => onBackClick()} // Simplified to just call the function
+              onClick={onBackClick}
               className="mr-2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
             >
               <svg
@@ -219,6 +218,14 @@ const ChatBox = ({
         {isLoading ? (
           <div className="flex justify-center items-center h-full">
             <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+          </div>
+        ) : isPendingChat ? (
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg max-w-xs">
+              <p className="text-blue-600 dark:text-blue-400">
+                Send your first message to start the conversation
+              </p>
+            </div>
           </div>
         ) : messages && messages.length > 0 ? (
           <div className="space-y-4 md:space-y-6">
@@ -301,11 +308,9 @@ const ChatBox = ({
                       }
 
                       // Safely get message content
-                      console.log('message content', message.content);
-                      const messageContent =
-                        (message &&
-                          (message.objectcontent || message.content)) ||
-                        ''; // Default to empty string if both are undefined
+                      const messageContent = message
+                        ? message.objectcontent || message.content || ''
+                        : '';
 
                       return (
                         <div
@@ -343,8 +348,8 @@ const ChatBox = ({
             <div ref={messagesEndRef} />
           </div>
         ) : (
-          <div className="text-center text-gray-500 dark:text-gray-400">
-            No messages yet
+          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+            No messages yet. Send a message to start the conversation.
           </div>
         )}
       </div>
@@ -380,7 +385,9 @@ const ChatBox = ({
 
           <input
             type="text"
-            placeholder="Message..."
+            placeholder={
+              isPendingChat ? 'Type your first message...' : 'Message...'
+            }
             value={messageText}
             onChange={(e) => onMessageChange(e.target.value)}
             className="flex-1 py-2 px-3 rounded-full bg-gray-100 dark:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-300 dark:focus:ring-gray-600 text-sm"
@@ -427,9 +434,9 @@ const ChatBox = ({
                 ? 'text-gray-400 dark:text-gray-500'
                 : 'text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300'
             }`}
-            disabled={isSending}
+            disabled={isSending || !messageText.trim()}
           >
-            {isSending ? 'Sending...' : 'Send'}
+            {isSending ? 'Sending...' : isPendingChat ? 'Start Chat' : 'Send'}
           </button>
         </form>
       </div>

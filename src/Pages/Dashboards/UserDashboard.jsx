@@ -10,6 +10,7 @@ import { useUser } from '../../Hook/useUser.js';
 import { useState } from 'react';
 import { saveCurrentPath, restoreLastPath } from '../../utils/sessionHelper';
 import AddBookPage from '../UserPages/AddBookPage.jsx';
+import ProfilePage from '../UserPages/ProfilePage.jsx';
 
 function UserDashboard() {
   const logger = useLogger();

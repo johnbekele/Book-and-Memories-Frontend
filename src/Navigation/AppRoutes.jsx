@@ -23,6 +23,7 @@ const Profile = lazy(() => import('../Components/ProfilePage.jsx'));
 const FeedPage = lazy(() => import('../Pages/UserPages/FeedPage.jsx'));
 const MyLibrary = lazy(() => import('../Components/MyLibrary.jsx'));
 const ChatPage = lazy(() => import('../Pages/UserPages/ChatPage.jsx'));
+const ProfilePage = lazy(() => import('../Pages/UserPages/ProfilePage.jsx'));
 
 const AppRoutes = () => {
   return (
@@ -99,6 +100,14 @@ const InnerRoutes = () => {
           element={
             <Suspense fallback={<SmallSpinner />}>
               <Profile />
+            </Suspense>
+          }
+        />
+        <Route
+          path="profile/:userId"
+          element={
+            <Suspense fallback={<SmallSpinner />}>
+              <ProfilePage />
             </Suspense>
           }
         />

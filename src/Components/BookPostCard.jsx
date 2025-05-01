@@ -10,6 +10,8 @@ import { useTheme } from '../Context/ThemeContext';
 import logger from '../utils/logger';
 import DeleteModal from '../Components/DeleteModal';
 import ReportModal from '../Components/ReportModal';
+import UserNameModal from '../Components/userNameModal';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const BookPostCard = ({
   post,
@@ -27,6 +29,7 @@ const BookPostCard = ({
   const [optimisticLikes, setOptimisticLikes] = useState(post.likes || []);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [isHovering, setIsHovering] = useState(null);
+  const navigate = useNavigate();
 
   // Optimistic UI state for favorites
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
@@ -196,7 +199,10 @@ const BookPostCard = ({
       className={`rounded-lg shadow-md overflow-hidden max-w-2xl mx-auto my-4 transition-colors duration-200`}
     >
       {/* Post Header */}
-      <div className="flex items-center p-3">
+      <div
+        className="flex items-center p-3"
+        onClick={() => navigate(`/user-dashboard/profile/${postUser?._id}`)}
+      >
         <Avatar
           src={userProfileImage}
           alt={postUser?.firstname || 'User'}

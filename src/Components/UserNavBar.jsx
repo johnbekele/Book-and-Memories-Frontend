@@ -27,7 +27,6 @@ const UserNavBar = ({ fromwhere, onNotification, onProfile, onHome }) => {
   const isdark = theme === 'dark';
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  console.log('ismobile from navbar', isMobile);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
